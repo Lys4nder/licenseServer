@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package data;
+
+service RTopServer {
+    rpc StreamData (RequestTopPackage) returns (RequestTopPackage) {}
+}
+
+message RequestTopPackage {
+    string request = 1;
+}
