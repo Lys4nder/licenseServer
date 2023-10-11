@@ -3,6 +3,8 @@ project(QTApp LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
+list(APPEND CMAKE_PREFIX_PATH "/root/.local")
 # Sets to autogenerate the MOC files
 set(CMAKE_AUTOMOC ON)
 
@@ -12,7 +14,7 @@ find_package(Threads REQUIRED)
 find_package(Qt6 COMPONENTS Widgets Core Gui REQUIRED)
 
 # Find Protobuf
-find_package(Protobuf REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
 
 # Find gRPC
 find_package(gRPC CONFIG REQUIRED)
@@ -44,6 +46,12 @@ if (Protobuf_FOUND)
   message(STATUS "Protobuf ${Protobuf_VERSION} was found")
 else()
   message(FATAL_ERROR "Protobuf was not found")
+endif()
+
+if(CMAKE_CROSSCOMPILING)
+  find_program(_PROTOBUF_PROTOC protoc)
+else()
+  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 endif()
 
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)

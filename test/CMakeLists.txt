@@ -1,9 +1,8 @@
 include(FetchContent)
 FetchContent_Declare(
   googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        e40661d89b051e9ef4eb8a2420b74bf78b39ef41 # release-1.10.0
-  FIND_PACKAGE_ARGS NAMES GTest
+  # Specify the commit you depend on and update it regularly.
+  URL https://github.com/google/googletest/archive/5376968f6948923e2411081fd9372e71a59d8e77.zip
 )
 
 # Prevent overriding the parent project's compiler/linker
