@@ -11,21 +11,31 @@ ImageWindow::ImageWindow() {
     // Create the main layout for the window
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
 
+    //Create secondary layouts
+    QHBoxLayout* buttonsLayout = new QHBoxLayout;
+    QHBoxLayout* contentLayout = new QHBoxLayout;
+
     // Set palette
     QPalette pal = SetPalette();
     this->setPalette(pal);
 
     // Create and set the import button
-    SetImportButton(mainLayout);
+    SetImportButton(buttonsLayout);
+    SetQueryButton(buttonsLayout);
+
+    mainLayout->addLayout(buttonsLayout);
 
     // Create and set the text label
     SetTextLabel(mainLayout, "No picture selected");
 
     // Create and set the image label
-    SetImageLabel(mainLayout);
+    SetImageLabel(contentLayout);
+    SetStatusLabel(contentLayout);
+
+    mainLayout->addLayout(contentLayout);
 }
 
-void ImageWindow::SetImportButton(QVBoxLayout* layout) {
+void ImageWindow::SetImportButton(QHBoxLayout* layout) {
     // Create the import button
     importButton_ = new QPushButton("Import Image");
     connect(importButton_, &QPushButton::clicked, this, &ImageWindow::ImportImage);
@@ -34,11 +44,16 @@ void ImageWindow::SetImportButton(QVBoxLayout* layout) {
     layout->addWidget(importButton_);
 }
 
-void ImageWindow::SetImageLabel(QVBoxLayout* layout) {
+void ImageWindow::SetQueryButton(QHBoxLayout* layout) {
+    queryButton_ = new QPushButton("Query Image");
+
+    layout->addWidget(queryButton_);
+}
+
+void ImageWindow::SetImageLabel(QHBoxLayout* layout) {
     // Create a QLabel for the image
     imageLabel_ = new QLabel(this);
     imageLabel_->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
-    imageLabel_->setMaximumSize(QSize(300, 300));
     // Add the image label to the main layout
     layout->addWidget(imageLabel_);
 }
@@ -55,6 +70,14 @@ void ImageWindow::SetTextLabel(QVBoxLayout* layout, QString text) {
 
     // Add the text label to the main layout
     layout->addWidget(imagePathLabel_);
+}
+
+void ImageWindow::SetStatusLabel(QHBoxLayout* layout) {
+    statusLabel_ = new QLabel(this);
+    statusLabel_->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
+    statusLabel_->setAlignment(Qt::AlignTop);
+
+    layout->addWidget(statusLabel_);
 }
 
 QPalette ImageWindow::SetPalette() {
