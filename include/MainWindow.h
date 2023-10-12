@@ -25,13 +25,18 @@ protected:
     QPushButton* importButton_; // New QPushButton for image import
     QLabel *imagePathLabel_;
     QLabel *imageLabel_; // QLabel for displaying the image
+    QPushButton* queryButton_;
+    QLabel* statusLabel_;
 
     void paintEvent(QPaintEvent*) override;
     void dropEvent(QDropEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
     QPalette SetPalette();
-    void SetImportButton(QVBoxLayout* layout);
-    void SetImageLabel(QVBoxLayout* layout);
+    void SetImportButton(QHBoxLayout* layout);
+    void SetQueryButton(QHBoxLayout* layout);
+    void SetImageLabel(QHBoxLayout* layout);
     void SetTextLabel(QVBoxLayout* layout, QString text);
+    void SetStatusLabel(QHBoxLayout* layout);
+
 };
 #endif // QT_GUI_MAINWINDOW_H
