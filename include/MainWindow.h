@@ -1,15 +1,15 @@
 #ifndef QT_GUI_MAINWINDOW_H
 #define QT_GUI_MAINWINDOW_H
 
-// Include the necessary Qt header files
 #include <QWidget>
 #include <QImage>
 #include <QPainter>
 #include <QDropEvent>
 #include <QDragEnterEvent>
 #include <QMimeData>
-#include <QPushButton> // Include for QPushButton
 #include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 class ImageWindow : public QWidget {
     Q_OBJECT
@@ -21,15 +21,17 @@ private slots:
     void ImportImage(); // New slot for handling image import
 
 protected:
-    QImage image;
-    QPushButton* importButton; // New QPushButton for image import
+    QImage image_;
+    QPushButton* importButton_; // New QPushButton for image import
     QLabel *imagePathLabel_;
+    QLabel *imageLabel_; // QLabel for displaying the image
 
     void paintEvent(QPaintEvent*) override;
     void dropEvent(QDropEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
-    QPalette SetPallete();
-    void SetImportButton();
+    QPalette SetPalette();
+    void SetImportButton(QVBoxLayout* layout);
+    void SetImageLabel(QVBoxLayout* layout);
+    void SetTextLabel(QVBoxLayout* layout, QString text);
 };
-
 #endif // QT_GUI_MAINWINDOW_H

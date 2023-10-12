@@ -1,33 +1,63 @@
 #include "../include/MainWindow.h"
 #include <QFileDialog>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 ImageWindow::ImageWindow() {
     setWindowTitle("CBIR");
     setGeometry(100, 100, 700, 400);
     setAcceptDrops(true);
 
+    // Create the main layout for the window
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+
     // Set palette
-    QPalette pal = SetPallete();
+    QPalette pal = SetPalette();
     this->setPalette(pal);
 
-    //Set import button
-    SetImportButton();
+    // Create and set the import button
+    SetImportButton(mainLayout);
+
+    // Create and set the text label
+    SetTextLabel(mainLayout, "No picture selected");
+
+    // Create and set the image label
+    SetImageLabel(mainLayout);
 }
 
-void ImageWindow::SetImportButton() {
-    // Create the button, set its position and connect to the slot
-    importButton = new QPushButton("Import Image", this);
-    importButton->move(10, 10); 
-    connect(importButton, &QPushButton::clicked, this, &ImageWindow::ImportImage);
+void ImageWindow::SetImportButton(QVBoxLayout* layout) {
+    // Create the import button
+    importButton_ = new QPushButton("Import Image");
+    connect(importButton_, &QPushButton::clicked, this, &ImageWindow::ImportImage);
 
-    // Set image label properties
-    imagePathLabel_ = new QLabel(this);
-    imagePathLabel_->setFrameStyle(QFrame::Panel | QFrame::Plain);
-    imagePathLabel_->setText("No image selected");
-    imagePathLabel_->move(10,30);
+    // Add the import button to the main layout
+    layout->addWidget(importButton_);
 }
 
-QPalette ImageWindow::SetPallete() {
+void ImageWindow::SetImageLabel(QVBoxLayout* layout) {
+    // Create a QLabel for the image
+    imageLabel_ = new QLabel(this);
+    imageLabel_->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
+    imageLabel_->setMaximumSize(QSize(300, 300));
+    // Add the image label to the main layout
+    layout->addWidget(imageLabel_);
+}
+
+void ImageWindow::SetTextLabel(QVBoxLayout* layout, QString text) {
+    // Create a QLabel for the text
+    imagePathLabel_ = new QLabel(text);
+    imagePathLabel_->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
+    imagePathLabel_->setFixedHeight(imagePathLabel_->fontMetrics().height() + 20);
+
+    // Allow the label to expand horizontally
+    imagePathLabel_->setWordWrap(true);
+    imagePathLabel_->setAlignment(Qt::AlignTop);
+
+    // Add the text label to the main layout
+    layout->addWidget(imagePathLabel_);
+}
+
+QPalette ImageWindow::SetPalette() {
      // Create Color Palette
     QPalette pal = QPalette();
     pal.setColor(QPalette::Window, QColor(45, 45, 45));
@@ -54,7 +84,7 @@ QPalette ImageWindow::SetPallete() {
 
 void ImageWindow::paintEvent(QPaintEvent*) {
     QPainter painter(this);
-    painter.drawImage(0, 0, image);
+    painter.drawImage(0, 0, image_);
 }
 
 void ImageWindow::dropEvent(QDropEvent* event) {
@@ -67,7 +97,7 @@ void ImageWindow::dropEvent(QDropEvent* event) {
             QImage newImage(filePath);
 
             if (!newImage.isNull()) {
-                image = newImage;
+                image_ = newImage;
                 imagePathLabel_->setText(filePath);
                 imagePathLabel_->setFixedSize(imagePathLabel_->sizeHint());
                 // Redraw with the new image
@@ -90,11 +120,9 @@ void ImageWindow::ImportImage() {
         QImage newImage(filePath);
 
         if (!newImage.isNull()) {
-            image = newImage.scaled(300, 200);
+            // Set the text and image
             imagePathLabel_->setText(filePath);
-            imagePathLabel_->setFixedSize(imagePathLabel_->sizeHint());
-            // Redraw with the new image
-            update(); 
+            imageLabel_->setPixmap(QPixmap::fromImage(newImage.scaled(300,300)));
         }
     }
 }
