@@ -9,6 +9,7 @@
 #include <QDragEnterEvent>
 #include <QMimeData>
 #include <QPushButton> // Include for QPushButton
+#include <QLabel>
 
 class ImageWindow : public QWidget {
     Q_OBJECT
@@ -17,15 +18,18 @@ public:
     ImageWindow();
 
 private slots:
-    void importImage(); // New slot for handling image import
+    void ImportImage(); // New slot for handling image import
 
 protected:
     QImage image;
     QPushButton* importButton; // New QPushButton for image import
+    QLabel *imagePathLabel_;
 
     void paintEvent(QPaintEvent*) override;
     void dropEvent(QDropEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
+    QPalette SetPallete();
+    void SetImportButton();
 };
 
 #endif // QT_GUI_MAINWINDOW_H

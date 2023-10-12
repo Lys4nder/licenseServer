@@ -3,8 +3,9 @@ project(QTApp LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
+# Specify paths for dependencies
 list(APPEND CMAKE_PREFIX_PATH "/root/.local")
+
 # Sets to autogenerate the MOC files
 set(CMAKE_AUTOMOC ON)
 
@@ -46,12 +47,6 @@ if (Protobuf_FOUND)
   message(STATUS "Protobuf ${Protobuf_VERSION} was found")
 else()
   message(FATAL_ERROR "Protobuf was not found")
-endif()
-
-if(CMAKE_CROSSCOMPILING)
-  find_program(_PROTOBUF_PROTOC protoc)
-else()
-  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 endif()
 
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
