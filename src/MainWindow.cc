@@ -30,7 +30,7 @@ ImageWindow::ImageWindow() {
 
     // Create and set the image label
     SetImageLabel(contentLayout);
-    SetStatusLabel(contentLayout);
+    SetStatusLabel(contentLayout, "No status yet");
 
     mainLayout->addLayout(contentLayout);
 }
@@ -46,7 +46,7 @@ void ImageWindow::SetImportButton(QHBoxLayout* layout) {
 
 void ImageWindow::SetQueryButton(QHBoxLayout* layout) {
     queryButton_ = new QPushButton("Query Image");
-
+    connect(queryButton_, &QPushButton::clicked, this, &ImageWindow::QueryImage);
     layout->addWidget(queryButton_);
 }
 
@@ -72,8 +72,8 @@ void ImageWindow::SetTextLabel(QVBoxLayout* layout, QString text) {
     layout->addWidget(imagePathLabel_);
 }
 
-void ImageWindow::SetStatusLabel(QHBoxLayout* layout) {
-    statusLabel_ = new QLabel(this);
+void ImageWindow::SetStatusLabel(QHBoxLayout* layout, QString text) {
+    statusLabel_ = new QLabel(text);
     statusLabel_->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
     statusLabel_->setAlignment(Qt::AlignTop);
 
@@ -105,10 +105,6 @@ QPalette ImageWindow::SetPalette() {
     return pal;
 }
 
-void ImageWindow::paintEvent(QPaintEvent*) {
-    QPainter painter(this);
-    painter.drawImage(0, 0, image_);
-}
 
 void ImageWindow::dropEvent(QDropEvent* event) {
     const QMimeData* mimeData = event->mimeData();
@@ -120,7 +116,7 @@ void ImageWindow::dropEvent(QDropEvent* event) {
             QImage newImage(filePath);
 
             if (!newImage.isNull()) {
-                image_ = newImage;
+                //image_ = newImage;
                 imagePathLabel_->setText(filePath);
                 imagePathLabel_->setFixedSize(imagePathLabel_->sizeHint());
                 // Redraw with the new image
@@ -143,9 +139,26 @@ void ImageWindow::ImportImage() {
         QImage newImage(filePath);
 
         if (!newImage.isNull()) {
-            // Set the text and image
+            // Calculate the scaled dimensions based on the size of the imageLabel_
+            QSize scaledSize = imageLabel_->size();
+            image_ = QImage(newImage.scaled(scaledSize, Qt::KeepAspectRatio));
+
+            // Set the text and imageLabel
             imagePathLabel_->setText(filePath);
-            imageLabel_->setPixmap(QPixmap::fromImage(newImage.scaled(300,300)));
+            imageLabel_->setPixmap(QPixmap::fromImage(image_));
+            statusLabel_->setText("Image imported");
+        } else {
+            statusLabel_->setText("Failed to import image");
         }
+    }
+}
+
+
+void ImageWindow::QueryImage() {
+    if (image_.isNull()) {
+        statusLabel_->setText("No image imported");
+    }
+    else {
+        statusLabel_->setText("Processing image...");
     }
 }

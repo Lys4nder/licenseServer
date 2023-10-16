@@ -2,10 +2,14 @@ syntax = "proto3";
 
 package data;
 
-service RTopServer {
-    rpc StreamData (RequestTopPackage) returns (RequestTopPackage) {}
+message Image {
+    bytes image = 1;
 }
 
-message RequestTopPackage {
-    string request = 1;
+message ImagesResponse {
+    repeated Image images = 1;
+}
+
+service ImageService {
+    rpc UploadImageRequest(stream Image) returns (stream ImagesResponse);
 }
