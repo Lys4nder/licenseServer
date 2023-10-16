@@ -29,7 +29,6 @@ protected:
     QPushButton* queryButton_;
     QLabel* statusLabel_;
 
-    void paintEvent(QPaintEvent*) override;
     void dropEvent(QDropEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
     QPalette SetPalette();

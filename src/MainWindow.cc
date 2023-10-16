@@ -105,10 +105,6 @@ QPalette ImageWindow::SetPalette() {
     return pal;
 }
 
-void ImageWindow::paintEvent(QPaintEvent*) {
-    QPainter painter(this);
-    painter.drawImage(0, 0, image_);
-}
 
 void ImageWindow::dropEvent(QDropEvent* event) {
     const QMimeData* mimeData = event->mimeData();
@@ -143,18 +139,20 @@ void ImageWindow::ImportImage() {
         QImage newImage(filePath);
 
         if (!newImage.isNull()) {
-            // Set the text and image
+            // Calculate the scaled dimensions based on the size of the imageLabel_
+            QSize scaledSize = imageLabel_->size();
+            image_ = QImage(newImage.scaled(scaledSize, Qt::KeepAspectRatio));
+
+            // Set the text and imageLabel
             imagePathLabel_->setText(filePath);
-            imageLabel_->setPixmap(QPixmap::fromImage(newImage.scaled(300,300)));
-            // BUG
-            //image_ = newImage;
+            imageLabel_->setPixmap(QPixmap::fromImage(image_));
             statusLabel_->setText("Image imported");
-        }
-        else {
+        } else {
             statusLabel_->setText("Failed to import image");
         }
     }
 }
+
 
 void ImageWindow::QueryImage() {
     if (image_.isNull()) {
