@@ -19,6 +19,7 @@ public:
 
 private slots:
     void ImportImage(); // New slot for handling image import
+    void QueryImage();
 
 protected:
     QImage image_;
@@ -36,7 +37,7 @@ protected:
     void SetQueryButton(QHBoxLayout* layout);
     void SetImageLabel(QHBoxLayout* layout);
     void SetTextLabel(QVBoxLayout* layout, QString text);
-    void SetStatusLabel(QHBoxLayout* layout);
+    void SetStatusLabel(QHBoxLayout* layout, QString text);
 
 };
 #endif // QT_GUI_MAINWINDOW_H
