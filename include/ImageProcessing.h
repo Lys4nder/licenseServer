@@ -17,8 +17,6 @@ namespace Server {
             void setFolderPath(std::string folderPath);
             void setQueryImagePath(std::string queryImagePath);
             void setImagePaths(std::vector<std::string> imagePaths);
-            void setQueryImage(cv::Mat queryImage);
-            void setQueryHist(cv::Mat queryHist);
             void DisplaySimilarityScores();
             void QueryImage();
         private:
@@ -32,7 +30,7 @@ namespace Server {
             cv::Mat calculateHistogram(cv::Mat image);
             double calculateHistogramSimilarity(cv::Mat hist1, cv::Mat hist2);
             void ReadImagesFolder();
-};
+    };
 }
 
 
