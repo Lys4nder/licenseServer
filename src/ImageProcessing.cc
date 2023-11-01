@@ -1,4 +1,5 @@
 #include "../include/ImageProcessing.h"
+#include <iostream>
 
 namespace Server {
 
@@ -32,7 +33,7 @@ namespace Server {
 
     void ImageProcessing::DisplaySimilarityScores() {
         for (const auto &similarityScore : similarityScores_) {
-            std::cout << similarityScore.first << ": " << similarityScore.second << std::endl;
+            std::cout << similarityScore.first << ": " << "Similarity score: "<< similarityScore.second << std::endl;
         }
     }
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(ServerApp LANGUAGES CXX)
+project(ServerApp VERSION 0.5 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -114,11 +114,13 @@ target_link_libraries(GrpcProtoLib
 set(PROJECT_SOURCES
   main.cc
   src/ImageProcessing.cc
+  src/ImageConvertor.cc
 )
 
 # Sets the project headers file
 set(PROJECT_HEADERS
     include/ImageProcessing.h
+    include/ImageConvertor.h
 )
 
 # Sets the executable
@@ -130,6 +132,7 @@ add_executable(${CMAKE_PROJECT_NAME}
 # Links the executable against the necessary dependencies
 target_link_libraries(${CMAKE_PROJECT_NAME}
   GrpcProtoLib
+  Qt6::Gui
   ${OpenCV_LIBS}
 )
 
@@ -142,6 +145,7 @@ add_library(${CMAKE_PROJECT_NAME}_lib
 # Links the library against the necessary dependencies
 target_link_libraries(${CMAKE_PROJECT_NAME}_lib
   GrpcProtoLib
+  Qt6::Gui
   ${OpenCV_LIBS}
 )
 
