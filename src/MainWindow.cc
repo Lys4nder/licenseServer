@@ -2,6 +2,7 @@
 #include <QFileDialog>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include "../include/ServerConnection.h"
 
 ImageWindow::ImageWindow() {
     setWindowTitle("CBIR");
@@ -104,7 +105,6 @@ QPalette ImageWindow::SetPalette() {
 
     return pal;
 }
-
 
 void ImageWindow::dropEvent(QDropEvent* event) {
     const QMimeData* mimeData = event->mimeData();

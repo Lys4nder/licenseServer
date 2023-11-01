@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package data;
+package ImageData;
 
 message Image {
     bytes image = 1;
