@@ -121,6 +121,7 @@ set(PROJECT_SOURCES
 set(PROJECT_HEADERS
     include/ImageProcessing.h
     include/ImageConvertor.h
+    include/ClientConnection.h
 )
 
 # Sets the executable
