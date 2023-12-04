@@ -17,10 +17,7 @@ namespace Client {
         ServerConnection& operator=(const ServerConnection&) = delete;
         ~ServerConnection();
 
-        void FetchData(std::promise<void>& promise, std::shared_ptr<int32_t> index);
-        grpc_connectivity_state GetConnectivityState();
-        ImageData::ImagesResponse GetData();
-        void ReadResponse(std::promise<void>& promise, std::shared_ptr<int32_t> index);
+        void ProcessImage(const std::string& imageId, const std::vector<uint8_t>& imageData);
 
         inline void Kill() { end_ = true; }
 
@@ -28,16 +25,10 @@ namespace Client {
 
     private:
         bool end_ = false;
-        std::unique_ptr<ImageData::ImageService::Stub> stub_;
+        std::unique_ptr<ImageService::Stub> stub_;
         std::shared_ptr<grpc::Channel> channel_;
-        std::unique_ptr<grpc::ClientReaderWriter<ImageData::Image, ImageData::ImagesResponse>> stream_;
-        std::thread response_thread_;
-        ImageData::ImagesResponse data_;
-        std::mutex data_mutex_;
         grpc::ClientContext context_;
-        ImageData::Image request_;
     };
 }
-
 
 #endif // QT_GUI_SERVERCONNECTION_H
