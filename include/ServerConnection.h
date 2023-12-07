@@ -8,6 +8,7 @@
 #include <mutex>
 #include <string>
 #include <future>
+#include <QImage>
 
 namespace Client {
     class ServerConnection {
@@ -17,17 +18,23 @@ namespace Client {
         ServerConnection& operator=(const ServerConnection&) = delete;
         ~ServerConnection();
 
-        void ProcessImage(const std::string& imageId, const std::vector<uint8_t>& imageData);
-
         inline void Kill() { end_ = true; }
 
         inline bool IsRunning() { return !end_; }
+
+        void MakeRequest(QImage imageData, const uint8_t imageId);
+
+        inline void SetIp(const std::string& ip) { ip_ = ip; }
+
+        inline void SetPort(uint32_t port) { port_ = port; }
 
     private:
         bool end_ = false;
         std::unique_ptr<ImageService::Stub> stub_;
         std::shared_ptr<grpc::Channel> channel_;
         grpc::ClientContext context_;
+        std::string ip_;
+        uint32_t port_;
     };
 }
 

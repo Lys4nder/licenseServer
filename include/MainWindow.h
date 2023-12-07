@@ -10,6 +10,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include "../include/ServerConnection.h"
 
 class ImageWindow : public QWidget {
     Q_OBJECT
@@ -28,6 +29,11 @@ protected:
     QLabel *imageLabel_; // QLabel for displaying the image
     QPushButton* queryButton_;
     QLabel* statusLabel_;
+    
+    std::string ip_ = "localhost";
+    uint16_t port_ = 50051;
+
+    Client::ServerConnection connection_ = Client::ServerConnection(ip_, port_);
 
     void dropEvent(QDropEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;

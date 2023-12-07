@@ -2,7 +2,6 @@
 #include <QFileDialog>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include "../include/ServerConnection.h"
 
 ImageWindow::ImageWindow() {
     setWindowTitle("CBIR");
@@ -160,5 +159,6 @@ void ImageWindow::QueryImage() {
     }
     else {
         statusLabel_->setText("Processing image...");
+        connection_.MakeRequest(image_, 1);
     }
 }
