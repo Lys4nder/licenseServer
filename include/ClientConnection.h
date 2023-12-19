@@ -8,6 +8,8 @@
 #include <QByteArray>
 #include <QImage>
 #include "../include/ImageConvertor.h"
+#include "../include/ImageProcessing.h"
+#include <QString>
 
 class ImageServiceImpl final : public ImageService::Service {
 public:
@@ -17,29 +19,34 @@ public:
         // Check if image data is valid
         if (imageData.isNull()) {
             return grpc::Status::CANCELLED;
+        } else {
+            std::cout << "Image data is valid" << std::endl;
         }
 
         // Convert QImage to cv::Mat
         QImage image;
         image.loadFromData(reinterpret_cast<const uchar*>(imageData.constData()), imageData.size());
 
+        // Save the image
+        QString filePath = "output_image2.jpg";
+        image.save(filePath);
+
         Server::ImageConvertor imageConvertor;
         cv::Mat cvImage = imageConvertor.ConvertToCvMat(image);
 
-        // Testing purposes
-        cv::imwrite("output_image.jpg", cvImage);
-
         // TODO: Analyze here
+        // process image
+        Server::ImageProcessing imageProcessing;
 
 
 
         //TODO: Send Back data
-        response->set_set_id("123");
+        response->set_set_id("2");
         response->add_image_data("Processed Image Data 1");
         response->add_image_data("Processed Image Data 2");
 
         return grpc::Status::OK;
-}
+    }
 
 };
 
