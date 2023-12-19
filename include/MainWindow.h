@@ -19,11 +19,12 @@ public:
     ImageWindow();
 
 private slots:
-    void ImportImage(); // New slot for handling image import
+    void ImportImage();
     void QueryImage();
 
 protected:
     QImage image_;
+    QImage toBeSentImage_;
     QPushButton* importButton_; // New QPushButton for image import
     QLabel *imagePathLabel_;
     QLabel *imageLabel_; // QLabel for displaying the image

@@ -15,15 +15,16 @@ namespace Client {
         Kill();
     }
 
-   void ServerConnection::MakeRequest(QImage imageData, const uint8_t imageId) {
+   void ServerConnection::MakeRequest(QImage& imageData, const uint8_t imageId) {
         // Create a request message
         ImageRequest request;
         request.set_image_id(std::to_string(imageId));
 
-        // Convert QImage to QByteArray with JPG format
+        // Convert QImage to QByteArray with JPEG format
         QByteArray byteArray;
         QBuffer buffer(&byteArray);
         buffer.open(QIODevice::WriteOnly);
+        //imageData.save(&buffer, "JPG");
 
         if (!imageData.isNull() && imageData.save(&buffer, "JPG")) {
             // Set the image data in the request

@@ -136,6 +136,7 @@ void ImageWindow::ImportImage() {
 
     if (!filePath.isEmpty()) {
         QImage newImage(filePath);
+        toBeSentImage_ = newImage;
 
         if (!newImage.isNull()) {
             // Calculate the scaled dimensions based on the size of the imageLabel_
@@ -159,6 +160,6 @@ void ImageWindow::QueryImage() {
     }
     else {
         statusLabel_->setText("Processing image...");
-        connection_.MakeRequest(image_, 1);
+        connection_.MakeRequest(toBeSentImage_, 1);
     }
 }

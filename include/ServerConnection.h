@@ -22,7 +22,7 @@ namespace Client {
 
         inline bool IsRunning() { return !end_; }
 
-        void MakeRequest(QImage imageData, const uint8_t imageId);
+        void MakeRequest(QImage& imageData, const uint8_t imageId);
 
         inline void SetIp(const std::string& ip) { ip_ = ip; }
 
