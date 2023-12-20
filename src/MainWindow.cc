@@ -161,5 +161,12 @@ void ImageWindow::QueryImage() {
     else {
         statusLabel_->setText("Processing image...");
         connection_.MakeRequest(toBeSentImage_, 1);
+        std::vector<QImage> receivedImages = connection_.GetReceivedImages();
+        //scale image to fit label
+        QSize scaledSize = imageLabel_->size();
+        receivedImages[0] = receivedImages[0].scaled(scaledSize, Qt::KeepAspectRatio);
+        imageLabel_->setPixmap(QPixmap::fromImage(receivedImages[0]));
+        statusLabel_->setText("Result image...");
+
     }
 }

@@ -1,6 +1,7 @@
 #include "../include/ServerConnection.h"
 #include <QByteArray>
 #include <QBuffer>
+#include <QString>
 
 namespace Client {
     ServerConnection::ServerConnection(const std::string& ip, uint32_t port) {
@@ -41,7 +42,10 @@ namespace Client {
                 // Handle response
                 std::cout << "Received set ID: " << response.set_id() << std::endl;
                 for (const auto& image_data : response.image_data()) {
-                    std::cout << "Received image data: " << image_data << std::endl;
+                    // Convert QByteArray to QImage
+                    QByteArray byteArray = QByteArray::fromBase64(QString::fromStdString(image_data).toUtf8());
+                    QImage image = QImage::fromData(byteArray, "JPG");
+                    receivedImages_.push_back(image);
                 }
             } else {
                 // Handle error

@@ -28,6 +28,8 @@ namespace Client {
 
         inline void SetPort(uint32_t port) { port_ = port; }
 
+        inline std::vector<QImage> GetReceivedImages() { return receivedImages_; }
+
     private:
         bool end_ = false;
         std::unique_ptr<ImageService::Stub> stub_;
@@ -35,6 +37,7 @@ namespace Client {
         grpc::ClientContext context_;
         std::string ip_;
         uint32_t port_;
+        std::vector<QImage> receivedImages_;
     };
 }
 
