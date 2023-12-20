@@ -105,7 +105,6 @@ QPalette ImageWindow::SetPalette() {
     return pal;
 }
 
-
 void ImageWindow::dropEvent(QDropEvent* event) {
     const QMimeData* mimeData = event->mimeData();
 
@@ -137,6 +136,7 @@ void ImageWindow::ImportImage() {
 
     if (!filePath.isEmpty()) {
         QImage newImage(filePath);
+        toBeSentImage_ = newImage;
 
         if (!newImage.isNull()) {
             // Calculate the scaled dimensions based on the size of the imageLabel_
@@ -160,5 +160,13 @@ void ImageWindow::QueryImage() {
     }
     else {
         statusLabel_->setText("Processing image...");
+        connection_.MakeRequest(toBeSentImage_, 1);
+        std::vector<QImage> receivedImages = connection_.GetReceivedImages();
+        //scale image to fit label
+        QSize scaledSize = imageLabel_->size();
+        receivedImages[0] = receivedImages[0].scaled(scaledSize, Qt::KeepAspectRatio);
+        imageLabel_->setPixmap(QPixmap::fromImage(receivedImages[0]));
+        statusLabel_->setText("Result image...");
+
     }
 }

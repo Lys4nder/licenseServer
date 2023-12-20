@@ -113,12 +113,14 @@ target_link_libraries(GrpcProtoLib
 # Sets the project sources file
 set(PROJECT_SOURCES
   main.cc
-  src/MainWindow.cc 
+  src/MainWindow.cc
+  src/ServerConnection.cc 
 )
 
 # Sets the project headers file
 set(PROJECT_HEADERS
   include/MainWindow.h
+  include/ServerConnection.h
 )
 
 # Sets the executable

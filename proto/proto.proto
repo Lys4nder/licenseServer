@@ -1,15 +1,25 @@
 syntax = "proto3";
 
-package data;
+// Define a message for sending images
+message ImageRequest {
+  // Unique identifier for the image
+  string image_id = 1;
 
-message Image {
-    bytes image = 1;
+  // The actual image data as bytes
+  bytes image_data = 2;
 }
 
-message ImagesResponse {
-    repeated Image images = 1;
+// Define a message for receiving multiple images
+message ImageResponse {
+  // Unique identifier for the set of images
+  string set_id = 1;
+
+  // List of images as bytes
+  repeated bytes image_data = 2;
 }
 
+// Define a service for image processing
 service ImageService {
-    rpc UploadImageRequest(stream Image) returns (stream ImagesResponse);
+  // RPC method for sending an image and receiving multiple images
+  rpc ProcessImage (ImageRequest) returns (ImageResponse);
 }

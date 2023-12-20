@@ -1,4 +1,5 @@
 #include "include/MainWindow.h"
+#include "include/ServerConnection.h"
 #include <QApplication>
 
 int main(int argc, char *argv[]) {
