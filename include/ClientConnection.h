@@ -10,6 +10,9 @@
 #include "../include/ImageConvertor.h"
 #include "../include/ImageProcessing.h"
 #include <QString>
+#include <QByteArray>
+#include <QBuffer>
+
 
 class ImageServiceImpl final : public ImageService::Service {
 public:
@@ -28,23 +31,40 @@ public:
         image.loadFromData(reinterpret_cast<const uchar*>(imageData.constData()), imageData.size());
 
         // Save the image
-        QString filePath = "output_image2.jpg";
+        QString filePath = "output_image.jpg";
         image.save(filePath);
 
         Server::ImageConvertor imageConvertor;
         cv::Mat cvImage = imageConvertor.ConvertToCvMat(image);
 
-        // TODO: Analyze here
+        // TODO: Do a config.cfg file for folder path, query image path, etc and for ip and port
         // process image
         Server::ImageProcessing imageProcessing;
+        imageProcessing.setFolderPath("/Users/lysanderpitu/Desktop/images/");
+        imageProcessing.setQueryImagePath("output_image.jpg");
+        imageProcessing.QueryImage();
 
+        std::vector<std::pair<std::string, double>> similarityScores = imageProcessing.GetSimilarityScores();
+        std::vector<QImage> qImages;
 
+        for (auto const &similarityScore : similarityScores) {
+            if (similarityScore.second < 0.15) {
+                QImage qImage;
+                qImage.load(QString::fromStdString(similarityScore.first));
+                qImages.push_back(qImage);
+            }
+        }
 
-        //TODO: Send Back data
-        response->set_set_id("2");
-        response->add_image_data("Processed Image Data 1");
-        response->add_image_data("Processed Image Data 2");
-
+        int counter = 0;
+        for (const auto &QI : qImages) {
+                response->set_set_id(std::to_string(counter++));
+                QByteArray byteArray;
+                QBuffer buffer(&byteArray);
+                buffer.open(QIODevice::WriteOnly);
+                QI.save(&buffer, "JPG");
+                response->add_image_data(byteArray.toBase64().toStdString());
+        }
+    
         return grpc::Status::OK;
     }
 

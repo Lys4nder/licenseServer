@@ -7,8 +7,6 @@ namespace Server {
 
     QImage ImageConvertor::ConvertToQImage(cv::Mat image) {
         
-        // if image empty return - error handling
-
         QImage qImage;
 
         switch (image.channels())

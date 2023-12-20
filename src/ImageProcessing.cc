@@ -79,5 +79,9 @@ namespace Server {
         } else {
             std::cout << "Found " << imagePaths_.size() << " image files in the folder: " << folderPath_ << std::endl;
         }
-}
+    }
+
+    std::vector<std::pair<std::string, double>> ImageProcessing::GetSimilarityScores() {
+        return similarityScores_;
+    }
 } // namespace Server

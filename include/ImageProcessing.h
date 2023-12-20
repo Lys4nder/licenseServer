@@ -13,6 +13,7 @@ namespace Server {
             void setImagePaths(std::vector<std::string> imagePaths);
             void DisplaySimilarityScores();
             void QueryImage();
+            std::vector<std::pair<std::string, double>> GetSimilarityScores();
         private:
             std::string folderPath_;
             std::string queryImagePathName_;
