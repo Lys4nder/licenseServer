@@ -46,12 +46,13 @@ public:
 
         std::vector<std::pair<std::string, double>> similarityScores = imageProcessing.GetSimilarityScores();
         std::vector<QImage> qImages;
+        qImages.reserve(similarityScores.size());
 
-        for (auto const &similarityScore : similarityScores) {
+        for (const auto &similarityScore : similarityScores) {
             if (similarityScore.second < 0.15) {
                 QImage qImage;
                 qImage.load(QString::fromStdString(similarityScore.first));
-                qImages.push_back(qImage);
+                qImages.push_back(std::move(qImage));
             }
         }
 
