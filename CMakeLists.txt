@@ -115,12 +115,14 @@ set(PROJECT_SOURCES
   main.cc
   src/MainWindow.cc
   src/ServerConnection.cc 
+  src/SecondaryWindow.cc
 )
 
 # Sets the project headers file
 set(PROJECT_HEADERS
   include/MainWindow.h
   include/ServerConnection.h
+  include/SecondaryWindow.h
 )
 
 # Sets the executable

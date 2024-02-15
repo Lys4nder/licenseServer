@@ -1,9 +1,10 @@
 #include "../include/MainWindow.h"
+#include "../include/SecondaryWindow.h"
 #include <QFileDialog>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-ImageWindow::ImageWindow() {
+MainWindow::MainWindow() {
     setWindowTitle("CBIR");
     setGeometry(100, 100, 700, 400);
     setAcceptDrops(true);
@@ -35,22 +36,22 @@ ImageWindow::ImageWindow() {
     mainLayout->addLayout(contentLayout);
 }
 
-void ImageWindow::SetImportButton(QHBoxLayout* layout) {
+void MainWindow::SetImportButton(QHBoxLayout* layout) {
     // Create the import button
     importButton_ = new QPushButton("Import Image");
-    connect(importButton_, &QPushButton::clicked, this, &ImageWindow::ImportImage);
+    connect(importButton_, &QPushButton::clicked, this, &MainWindow::ImportImage);
 
     // Add the import button to the main layout
     layout->addWidget(importButton_);
 }
 
-void ImageWindow::SetQueryButton(QHBoxLayout* layout) {
+void MainWindow::SetQueryButton(QHBoxLayout* layout) {
     queryButton_ = new QPushButton("Query Image");
-    connect(queryButton_, &QPushButton::clicked, this, &ImageWindow::QueryImage);
+    connect(queryButton_, &QPushButton::clicked, this, &MainWindow::QueryImage);
     layout->addWidget(queryButton_);
 }
 
-void ImageWindow::SetImageLabel(QHBoxLayout* layout) {
+void MainWindow::SetImageLabel(QHBoxLayout* layout) {
     // Create a QLabel for the image
     imageLabel_ = new QLabel(this);
     imageLabel_->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
@@ -58,7 +59,7 @@ void ImageWindow::SetImageLabel(QHBoxLayout* layout) {
     layout->addWidget(imageLabel_);
 }
 
-void ImageWindow::SetTextLabel(QVBoxLayout* layout, QString text) {
+void MainWindow::SetTextLabel(QVBoxLayout* layout, QString text) {
     // Create a QLabel for the text
     imagePathLabel_ = new QLabel(text);
     imagePathLabel_->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
@@ -72,7 +73,7 @@ void ImageWindow::SetTextLabel(QVBoxLayout* layout, QString text) {
     layout->addWidget(imagePathLabel_);
 }
 
-void ImageWindow::SetStatusLabel(QHBoxLayout* layout, QString text) {
+void MainWindow::SetStatusLabel(QHBoxLayout* layout, QString text) {
     statusLabel_ = new QLabel(text);
     statusLabel_->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
     statusLabel_->setAlignment(Qt::AlignTop);
@@ -80,7 +81,7 @@ void ImageWindow::SetStatusLabel(QHBoxLayout* layout, QString text) {
     layout->addWidget(statusLabel_);
 }
 
-QPalette ImageWindow::SetPalette() {
+QPalette MainWindow::SetPalette() {
      // Create Color Palette
     QPalette pal = QPalette();
     pal.setColor(QPalette::Window, QColor(45, 45, 45));
@@ -105,7 +106,7 @@ QPalette ImageWindow::SetPalette() {
     return pal;
 }
 
-void ImageWindow::dropEvent(QDropEvent* event) {
+void MainWindow::dropEvent(QDropEvent* event) {
     const QMimeData* mimeData = event->mimeData();
 
     if (mimeData->hasUrls()) {
@@ -125,13 +126,13 @@ void ImageWindow::dropEvent(QDropEvent* event) {
     }
 }
 
-void ImageWindow::dragEnterEvent(QDragEnterEvent* event) {
+void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
     if (event->mimeData()->hasUrls()) {
         event->acceptProposedAction();
     }
 }
 
-void ImageWindow::ImportImage() {
+void MainWindow::ImportImage() {
     QString filePath = QFileDialog::getOpenFileName(this, "Open Image File", QString(), "Images (*.png *.jpg *.jpeg *.bmp *.gif)");
 
     if (!filePath.isEmpty()) {
@@ -154,7 +155,7 @@ void ImageWindow::ImportImage() {
 }
 
 
-void ImageWindow::QueryImage() {
+void MainWindow::QueryImage() {
     if (image_.isNull()) {
         statusLabel_->setText("No image imported");
     }
@@ -162,11 +163,23 @@ void ImageWindow::QueryImage() {
         statusLabel_->setText("Processing image...");
         connection_.MakeRequest(toBeSentImage_, 1);
         std::vector<QImage> receivedImages = connection_.GetReceivedImages();
-        //scale image to fit label
+
         QSize scaledSize = imageLabel_->size();
-        receivedImages[0] = receivedImages[0].scaled(scaledSize, Qt::KeepAspectRatio);
-        imageLabel_->setPixmap(QPixmap::fromImage(receivedImages[0]));
+        for (auto& img : receivedImages) {
+            img = img.scaled(scaledSize, Qt::KeepAspectRatio);
+            imageLabel_->setPixmap(QPixmap::fromImage(img));
+        }
+
+        //scale image to fit label
+        //receivedImages[0] = receivedImages[0].scaled(scaledSize, Qt::KeepAspectRatio);
+        //imageLabel_->setPixmap(QPixmap::fromImage(receivedImages[0]));
         statusLabel_->setText("Result image...");
+
+        // Create a secondary window to display the results
+        Client::SecondaryWindow* secondaryWindow = new Client::SecondaryWindow();
+        secondaryWindow->SetImages(receivedImages);
+        secondaryWindow->DisplayImages();
+        secondaryWindow->show();
 
     }
 }

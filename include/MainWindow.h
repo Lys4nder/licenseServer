@@ -12,11 +12,11 @@
 #include <QVBoxLayout>
 #include "../include/ServerConnection.h"
 
-class ImageWindow : public QWidget {
+class MainWindow : public QWidget {
     Q_OBJECT
 
 public:
-    ImageWindow();
+    MainWindow();
 
 private slots:
     void ImportImage();
