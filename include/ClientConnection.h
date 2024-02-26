@@ -30,10 +30,6 @@ public:
         QImage image;
         image.loadFromData(reinterpret_cast<const uchar*>(imageData.constData()), imageData.size());
 
-        // Save the image
-        QString filePath = "output_image.jpg";
-        image.save(filePath);
-
         Server::ImageConvertor imageConvertor;
         cv::Mat cvImage = imageConvertor.ConvertToCvMat(image);
 
@@ -78,7 +74,8 @@ void RunServer() {
     grpc::ServerBuilder builder;
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&service);
-
+    builder.SetMaxReceiveMessageSize(-1);
+    builder.SetMaxSendMessageSize(-1);
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << std::endl;
     server->Wait();
