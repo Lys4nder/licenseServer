@@ -133,7 +133,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
 }
 
 void MainWindow::ImportImage() {
-    QString filePath = QFileDialog::getOpenFileName(this, "Open Image File", QString(), "Images (*.png *.jpg *.jpeg *.bmp *.gif)");
+    QString filePath = QFileDialog::getOpenFileName(this, "Open Image File", QString(), "Images (*.png)");
 
     if (!filePath.isEmpty()) {
         QImage newImage(filePath);
@@ -152,6 +152,9 @@ void MainWindow::ImportImage() {
             statusLabel_->setText("Failed to import image");
         }
     }
+    else {
+        statusLabel_->setText("No selection made.");
+    }
 }
 
 
@@ -164,15 +167,13 @@ void MainWindow::QueryImage() {
         connection_.MakeRequest(toBeSentImage_, 1);
         std::vector<QImage> receivedImages = connection_.GetReceivedImages();
 
+        //scale images to fit label
         QSize scaledSize = imageLabel_->size();
         for (auto& img : receivedImages) {
             img = img.scaled(scaledSize, Qt::KeepAspectRatio);
             imageLabel_->setPixmap(QPixmap::fromImage(img));
         }
 
-        //scale image to fit label
-        //receivedImages[0] = receivedImages[0].scaled(scaledSize, Qt::KeepAspectRatio);
-        //imageLabel_->setPixmap(QPixmap::fromImage(receivedImages[0]));
         statusLabel_->setText("Result image...");
 
         // Create a secondary window to display the results
