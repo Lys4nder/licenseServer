@@ -72,7 +72,7 @@ namespace Server {
 
     void ImageProcessing::ReadImagesFolder() {
 
-        cv::glob(folderPath_ + "*.jpg", imagePaths_, false);
+        cv::glob(folderPath_ + "*.png", imagePaths_, false);
 
         if (imagePaths_.empty()) {
             std::cout << "Could not find any image files in the folder: " << folderPath_ << std::endl;
