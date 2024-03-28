@@ -17,8 +17,9 @@ namespace Client {
         // Reset each time received images
         receivedImages_.clear();
 
+        // Remove the limits on sizes
         grpc::ChannelArguments ch_args;
-        ch_args.SetMaxReceiveMessageSize(-1); // Remove the limit on the max receive message size
+        ch_args.SetMaxReceiveMessageSize(-1); 
         ch_args.SetMaxSendMessageSize(-1);
         channel_ = grpc::CreateCustomChannel(ip_ + ":" + std::to_string(port_), grpc::InsecureChannelCredentials(), ch_args);
         // Create a stub to manage the connection
@@ -33,7 +34,7 @@ namespace Client {
         QBuffer buffer(&byteArray);
         buffer.open(QIODevice::WriteOnly);
 
-        if (!imageData.isNull() && imageData.save(&buffer, "JPG")) {
+        if (!imageData.isNull() && imageData.save(&buffer, "PNG")) {
             // Set the image data in the request
             request.set_image_data(byteArray.toBase64().toStdString());
 
@@ -53,7 +54,7 @@ namespace Client {
                 for (const auto& image_data : response.image_data()) {
                     // Convert QByteArray to QImage
                     QByteArray byteArray = QByteArray::fromBase64(QString::fromStdString(image_data).toUtf8());
-                    QImage image = QImage::fromData(byteArray, "JPG");
+                    QImage image = QImage::fromData(byteArray, "PNG");
                     receivedImages_.push_back(image);
                 }
             } else {

@@ -133,7 +133,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
 }
 
 void MainWindow::ImportImage() {
-    QString filePath = QFileDialog::getOpenFileName(this, "Open Image File", QString(), "Images (*.png *.jpg *.jpeg *.bmp *.gif)");
+    QString filePath = QFileDialog::getOpenFileName(this, "Open Image File", QString(), "Images (*.png)");
 
     if (!filePath.isEmpty()) {
         QImage newImage(filePath);
