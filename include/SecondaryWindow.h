@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QScrollArea>
 
 
 // this class is only used to display a popup window with the results of the query
@@ -24,6 +25,9 @@ namespace Client {
             std::vector<QImage> receivedImages_;
             QLabel *imageLabel_; // QLabel for displaying the image
             void SetImageLabel(QVBoxLayout* layout);
+            QScrollArea *scrollArea_; // Scroll area for displaying the images
+            QWidget *scrollWidget_; // Widget contained within the scroll area
+            QVBoxLayout *scrollLayout_; // Layout for the scroll widget
             
     };
 }
