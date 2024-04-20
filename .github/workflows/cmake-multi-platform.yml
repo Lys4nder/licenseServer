@@ -34,7 +34,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
-        version: '6.6.2' # specify the version of Qt you need
+        version: '6.6.2'
 
     - name: Install OpenCV and gRPC
       run: |
@@ -44,6 +44,11 @@ jobs:
     - name: Install Protobuf
       run: |
         sudo apt-get install -y protobuf-compiler libprotobuf-dev
+
+    - name: Configure Protobuf
+      run: |
+        export CMAKE_PREFIX_PATH="/usr/lib/x86_64-linux-gnu/cmake/protobuf:${CMAKE_PREFIX_PATH}"
+        cmake -B ${{ github.workspace }}/build -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -S ${{ github.workspace }}
 
     - name: Set reusable strings
       id: strings
