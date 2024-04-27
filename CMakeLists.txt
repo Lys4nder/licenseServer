@@ -116,6 +116,7 @@ set(PROJECT_SOURCES
   src/MainWindow.cc
   src/ServerConnection.cc 
   src/SecondaryWindow.cc
+  src/ConfigImporter.cc
 )
 
 # Sets the project headers file
@@ -123,6 +124,7 @@ set(PROJECT_HEADERS
   include/MainWindow.h
   include/ServerConnection.h
   include/SecondaryWindow.h
+  include/ConfigImporter.h
 )
 
 # Sets the executable
