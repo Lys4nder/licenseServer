@@ -12,6 +12,7 @@
 #include <QString>
 #include <QByteArray>
 #include <QBuffer>
+#include "../include/ConfigImporter.h"
 
 class ImageServiceImpl final : public ImageService::Service {
 public:
@@ -35,11 +36,15 @@ public:
         Server::ImageConvertor imageConvertor;
         cv::Mat cvImage = imageConvertor.ConvertToCvMat(image);
 
-
-        // TODO: Do a config.cfg file for folder path, query image path, etc and for ip and port
-        // process image
+        Server::ConfigImporter cfImporter;
+        try {
+        cfImporter.ReadConfig();
+        }
+        catch (const std::exception& e) {
+            std::cout << e.what();
+        }
         Server::ImageProcessing imageProcessing;
-        imageProcessing.setFolderPath("/Users/lysanderpitu/Desktop/images/");
+        imageProcessing.setFolderPath(cfImporter.GetImageFolderPath());
         imageProcessing.setQueryImagePath("output_image.png");
         imageProcessing.QueryImage();
 
@@ -69,7 +74,14 @@ public:
 };
 
 void RunServer() {
-    std::string server_address("0.0.0.0:50051");
+    Server::ConfigImporter cfImporter;
+    try {
+        cfImporter.ReadConfig();
+    }
+    catch (const std::exception& e) {
+        std::cout << e.what();
+    }
+    std::string server_address(cfImporter.GetAddr() + ':' + cfImporter.GetPort());
     ImageServiceImpl service;
     grpc::ServerBuilder builder;
 
@@ -78,7 +90,7 @@ void RunServer() {
     builder.SetMaxReceiveMessageSize(-1);
     builder.SetMaxSendMessageSize(-1);
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-    std::cout << "Server listening on " << server_address << std::endl;
+    std::cout << "[Server]: Started listening on " << server_address << std::endl;
     server->Wait();
 }
 

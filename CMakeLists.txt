@@ -31,7 +31,6 @@ else()
   message(FATAL_ERROR "Qt6 was not found")
 endif()
 
-
 # Check if OpenCV was found
 if (OpenCV_FOUND)
   message(STATUS "OpenCV ${OpenCV_VERSION} was found")
@@ -95,6 +94,7 @@ add_custom_command (
        "${PROTO_FILE}"
   DEPENDS "${PROTO_FILE}"
 )
+
 # Sets a library with generated files
 add_library(GrpcProtoLib
   ${PROTO_SOURCES}
@@ -115,6 +115,7 @@ set(PROJECT_SOURCES
   main.cc
   src/ImageProcessing.cc
   src/ImageConvertor.cc
+  src/ConfigImporter.cc
 )
 
 # Sets the project headers file
@@ -122,6 +123,7 @@ set(PROJECT_HEADERS
     include/ImageProcessing.h
     include/ImageConvertor.h
     include/ClientConnection.h
+    include/ConfigImporter.h
 )
 
 # Sets the executable
@@ -152,4 +154,3 @@ target_link_libraries(${CMAKE_PROJECT_NAME}_lib
 
 # Adds the test directory
 # add_subdirectory(test)
-
