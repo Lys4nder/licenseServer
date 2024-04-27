@@ -13,7 +13,7 @@
 namespace Client {
     class ServerConnection {
     public:
-        ServerConnection(const std::string& ip, uint32_t port);
+        ServerConnection();
         ServerConnection(const ServerConnection&) = delete;
         ServerConnection& operator=(const ServerConnection&) = delete;
         ~ServerConnection();
@@ -26,7 +26,7 @@ namespace Client {
 
         inline void SetIp(const std::string& ip) { ip_ = ip; }
 
-        inline void SetPort(uint32_t port) { port_ = port; }
+        inline void SetPort(const std::string& port) { port_ = port; }
 
         inline std::vector<QImage> GetReceivedImages() { return receivedImages_; }
 
@@ -36,7 +36,7 @@ namespace Client {
         std::shared_ptr<grpc::Channel> channel_;
         grpc::ClientContext context_;
         std::string ip_;
-        uint32_t port_;
+        std::string port_;
         std::vector<QImage> receivedImages_;
     };
 }

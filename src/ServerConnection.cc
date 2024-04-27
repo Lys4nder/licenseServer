@@ -2,10 +2,21 @@
 #include <QByteArray>
 #include <QBuffer>
 #include <QString>
+#include "../include/ConfigImporter.h"
 
 namespace Client {
-    ServerConnection::ServerConnection(const std::string& ip, uint32_t port) : ip_(ip), port_(port)
-    {}
+    ServerConnection::ServerConnection()
+    {
+        Client::ConfigImporter cfImporter;
+        try {
+            cfImporter.ReadConfig();
+        }
+        catch (const std::exception& e) {
+            std::cout << e.what();
+        }
+        ip_ = cfImporter.GetAddr();
+        port_ = cfImporter.GetPort();
+    }
 
     ServerConnection::~ServerConnection() {
         // Kill the connection
@@ -21,7 +32,7 @@ namespace Client {
         grpc::ChannelArguments ch_args;
         ch_args.SetMaxReceiveMessageSize(-1); 
         ch_args.SetMaxSendMessageSize(-1);
-        channel_ = grpc::CreateCustomChannel(ip_ + ":" + std::to_string(port_), grpc::InsecureChannelCredentials(), ch_args);
+        channel_ = grpc::CreateCustomChannel(ip_ + ":" + port_, grpc::InsecureChannelCredentials(), ch_args);
         // Create a stub to manage the connection
         stub_ = ImageService::NewStub(channel_);
 
@@ -50,7 +61,7 @@ namespace Client {
             // Handle the response or error as needed
             if (status.ok()) {
                 // Handle response
-                std::cout << "Received set ID: " << response.set_id() << std::endl;
+                std::cout << "[Client]: Received set ID: " << response.set_id() << std::endl;
                 for (const auto& image_data : response.image_data()) {
                     // Convert QByteArray to QImage
                     QByteArray byteArray = QByteArray::fromBase64(QString::fromStdString(image_data).toUtf8());
@@ -59,11 +70,11 @@ namespace Client {
                 }
             } else {
                 // Handle error
-                std::cerr << "Error: " << status.error_message() << std::endl;
+                std::cerr << "[Client]: Error: " << status.error_message() << std::endl;
             }
-        } else {
+        } else { 
             // Handle error saving QImage
-            std::cerr << "Error: Failed to save QImage to QByteArray" << std::endl;
+            std::cerr << "[Client]: Error: Failed to save QImage to QByteArray" << std::endl;
         }
     }
 
