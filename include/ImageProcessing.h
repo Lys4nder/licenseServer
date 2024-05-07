@@ -25,6 +25,7 @@ namespace Server {
             cv::Mat calculateHistogram(cv::Mat image);
             double calculateHistogramSimilarity(cv::Mat hist1, cv::Mat hist2);
             void ReadImagesFolder();
+            int statusPercentage_;
     };
 }
 

@@ -22,7 +22,7 @@ public:
         if (imageData.isNull()) {
             return grpc::Status::CANCELLED;
         } else {
-            std::cout << "Image data is valid" << std::endl;
+            std::cout << "[Server]: Image data is valid" << std::endl;
         }
 
         // Convert QImage to cv::Mat
