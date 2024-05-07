@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+
 MainWindow::MainWindow() {
     setWindowTitle("CBIR");
     setGeometry(100, 100, 700, 400);
@@ -34,6 +35,8 @@ MainWindow::MainWindow() {
     SetStatusLabel(contentLayout, "No status yet");
 
     mainLayout->addLayout(contentLayout);
+
+    SetStatusBar(mainLayout);
 }
 
 void MainWindow::SetImportButton(QHBoxLayout* layout) {
@@ -147,7 +150,7 @@ void MainWindow::ImportImage() {
             // Set the text and imageLabel
             imagePathLabel_->setText(filePath);
             imageLabel_->setPixmap(QPixmap::fromImage(image_));
-            statusLabel_->setText("Image imported");
+            statusBar_->showMessage("Image imported");
         } else {
             statusLabel_->setText("Failed to import image");
         }
@@ -160,10 +163,11 @@ void MainWindow::ImportImage() {
 
 void MainWindow::QueryImage() {
     if (image_.isNull()) {
-        statusLabel_->setText("No image imported");
+        statusBar_->showMessage("No image imported");
     }
     else {
-        statusLabel_->setText("Processing image...");
+        statusBar_->showMessage("Processing image...");
+        SetProgressBarStatus(0);
         connection_.MakeRequest(toBeSentImage_, 1);
         std::vector<QImage> receivedImages = connection_.GetReceivedImages();
 
@@ -174,13 +178,35 @@ void MainWindow::QueryImage() {
             imageLabel_->setPixmap(QPixmap::fromImage(img));
         }
 
-        statusLabel_->setText("Result image...");
+        statusBar_->showMessage("Displaying result");
 
         // Create a secondary window to display the results
         Client::SecondaryWindow* secondaryWindow = new Client::SecondaryWindow();
         secondaryWindow->SetImages(receivedImages);
         secondaryWindow->DisplayImages();
         secondaryWindow->show();
-
     }
+}
+
+void MainWindow::SetStatusBar(QVBoxLayout* layout) {
+    statusBar_ = new QStatusBar(this);
+    statusBar_->setFixedHeight(20);
+    statusBar_->showMessage("Ready");
+
+    progressBar_ = new QProgressBar(this);
+    progressBar_->setRange(0, 100);
+    progressBar_->setValue(0);
+    progressBar_->setFormat("%p%");
+    
+    progressBarLabel_ = new QLabel(this);
+    progressBarLabel_->setText("0%");
+    statusBar_->addPermanentWidget(progressBar_);
+    statusBar_->addPermanentWidget(progressBarLabel_);
+
+    layout->addWidget(statusBar_);
+}
+
+void MainWindow::SetProgressBarStatus(int value) {
+    progressBar_->setValue(value);
+    progressBarLabel_->setText(QString::number(value) + "%");
 }

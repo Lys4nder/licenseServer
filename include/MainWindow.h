@@ -10,6 +10,9 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QStatusBar>
+#include <QProgressBar>
+#include <QTimer>
 #include "../include/ServerConnection.h"
 
 class MainWindow : public QWidget {
@@ -30,7 +33,10 @@ protected:
     QLabel *imageLabel_; // QLabel for displaying the image
     QPushButton* queryButton_;
     QLabel* statusLabel_;
-
+    QStatusBar* statusBar_;
+    QProgressBar* progressBar_;
+    QLabel* progressBarLabel_;
+    QTimer* statusUpdateTimer_;
 
     Client::ServerConnection connection_ = Client::ServerConnection();
 
@@ -42,6 +48,9 @@ protected:
     void SetImageLabel(QHBoxLayout* layout);
     void SetTextLabel(QVBoxLayout* layout, QString text);
     void SetStatusLabel(QHBoxLayout* layout, QString text);
+    void SetStatusBar(QVBoxLayout* layout);
+    void SetProgressBarStatus(int value);
+    void UpdateStatus();
 
 };
 #endif // QT_GUI_MAINWINDOW_H
