@@ -3,6 +3,7 @@
 #include <QFileDialog>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QtConcurrent/QtConcurrent>
 
 
 MainWindow::MainWindow() {
@@ -176,23 +177,34 @@ void MainWindow::QueryImage() {
     }
     else {
         statusBar_->showMessage("Processing image...");
-        connection_.MakeRequest(toBeSentImage_, 1);
-        std::vector<QImage> receivedImages = connection_.GetReceivedImages();
 
-        //scale images to fit label
-        QSize scaledSize = imageLabel_->size();
-        for (auto& img : receivedImages) {
-            img = img.scaled(scaledSize, Qt::KeepAspectRatio);
-            imageLabel_->setPixmap(QPixmap::fromImage(img));
-        }
+        // Run MakeRequest function on a separate thread
+        QFuture<void> future = QtConcurrent::run([this]() {
+            connection_.MakeRequest(toBeSentImage_, 1);
+        });
 
-        statusBar_->showMessage("Displaying result");
+        // Connect a watcher to the future to handle result when done
+        QFutureWatcher<void>* watcher = new QFutureWatcher<void>();
+        connect(watcher, &QFutureWatcher<void>::finished, this, [this, watcher]() {
+            watcher->deleteLater();
+            std::vector<QImage> receivedImages = connection_.GetReceivedImages();
 
-        // Create a secondary window to display the results
-        Client::SecondaryWindow* secondaryWindow = new Client::SecondaryWindow();
-        secondaryWindow->SetImages(receivedImages);
-        secondaryWindow->DisplayImages();
-        secondaryWindow->show();
+            //scale images to fit label
+            QSize scaledSize = imageLabel_->size();
+            for (auto& img : receivedImages) {
+                img = img.scaled(scaledSize, Qt::KeepAspectRatio);
+                imageLabel_->setPixmap(QPixmap::fromImage(img));
+            }
+
+            statusBar_->showMessage("Displaying result");
+
+            // Create a secondary window to display the results
+            Client::SecondaryWindow* secondaryWindow = new Client::SecondaryWindow();
+            secondaryWindow->SetImages(receivedImages);
+            secondaryWindow->DisplayImages();
+            secondaryWindow->show();
+        });
+        watcher->setFuture(future);
     }
 }
 
