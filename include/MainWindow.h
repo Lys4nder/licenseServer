@@ -24,6 +24,7 @@ public:
 private slots:
     void ImportImage();
     void QueryImage();
+    void UpdateProgressBar(int percentage); //aaa
 
 protected:
     QImage image_;
@@ -49,8 +50,6 @@ protected:
     void SetTextLabel(QVBoxLayout* layout, QString text);
     void SetStatusLabel(QHBoxLayout* layout, QString text);
     void SetStatusBar(QVBoxLayout* layout);
-    void SetProgressBarStatus(int value);
-    void UpdateStatus();
 
 };
 #endif // QT_GUI_MAINWINDOW_H

@@ -37,6 +37,15 @@ MainWindow::MainWindow() {
     mainLayout->addLayout(contentLayout);
 
     SetStatusBar(mainLayout);
+
+    connect(&connection_, &Client::ServerConnection::StatusUpdate, this, &MainWindow::UpdateProgressBar);
+}
+
+void MainWindow::UpdateProgressBar(int percentage) {
+    // Update progress bar and label with the received percentage
+    progressBar_->setValue(percentage);
+    progressBarLabel_->setText(QString::number(percentage) + "%");
+    QCoreApplication::processEvents();
 }
 
 void MainWindow::SetImportButton(QHBoxLayout* layout) {
@@ -167,7 +176,6 @@ void MainWindow::QueryImage() {
     }
     else {
         statusBar_->showMessage("Processing image...");
-        SetProgressBarStatus(0);
         connection_.MakeRequest(toBeSentImage_, 1);
         std::vector<QImage> receivedImages = connection_.GetReceivedImages();
 
@@ -204,9 +212,4 @@ void MainWindow::SetStatusBar(QVBoxLayout* layout) {
     statusBar_->addPermanentWidget(progressBarLabel_);
 
     layout->addWidget(statusBar_);
-}
-
-void MainWindow::SetProgressBarStatus(int value) {
-    progressBar_->setValue(value);
-    progressBarLabel_->setText(QString::number(value) + "%");
 }

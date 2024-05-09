@@ -9,9 +9,11 @@
 #include <string>
 #include <future>
 #include <QImage>
+#include <QObject>
 
 namespace Client {
-    class ServerConnection {
+    class ServerConnection : public QObject{
+        Q_OBJECT
     public:
         ServerConnection();
         ServerConnection(const ServerConnection&) = delete;
@@ -30,9 +32,13 @@ namespace Client {
 
         inline std::vector<QImage> GetReceivedImages() { return receivedImages_; }
 
+    signals:
+        void StatusUpdate(int percentage);
+
     private:
         bool end_ = false;
         std::unique_ptr<ImageService::Stub> stub_;
+        std::unique_ptr<StatusService::Stub> statusStub_;
         std::shared_ptr<grpc::Channel> channel_;
         grpc::ClientContext context_;
         std::string ip_;
