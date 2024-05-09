@@ -13,8 +13,10 @@
 #include <QByteArray>
 #include <QBuffer>
 #include "../include/ConfigImporter.h"
+#include <thread>
 
 class ImageServiceImpl final : public ImageService::Service {
+private:
 public:
     grpc::Status ProcessImage(grpc::ServerContext* context, const ImageRequest* request, ImageResponse* response) override {
         QByteArray imageData = QByteArray::fromBase64(request->image_data().c_str());
@@ -38,7 +40,7 @@ public:
 
         Server::ConfigImporter cfImporter;
         try {
-        cfImporter.ReadConfig();
+            cfImporter.ReadConfig();
         }
         catch (const std::exception& e) {
             std::cout << e.what();
@@ -73,6 +75,26 @@ public:
     }
 };
 
+class StatusServiceImpl final : public StatusService::Service {
+public:
+    grpc::Status GetStatus(grpc::ServerContext* context, const PercentageRequest* request, grpc::ServerWriter<PercentageResponse>* writer) override {
+        std::cout << "[Server]: Status request function called" << std::endl;
+
+        // Assuming some logic here to determine when to send responses
+        int i = 0;
+        while (i <= 100){
+            PercentageResponse response;
+            response.set_percentage(i); // Use the shared statusPercentage_
+            writer->Write(response); // Send the response to the client
+            i++;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Sleep for 100ms
+        }
+        i = 0; // Reset the statusPercentage_ to 0
+        return grpc::Status::OK;
+    }
+
+};
+
 void RunServer() {
     Server::ConfigImporter cfImporter;
     try {
@@ -82,13 +104,18 @@ void RunServer() {
         std::cout << e.what();
     }
     std::string server_address(cfImporter.GetAddr() + ':' + cfImporter.GetPort());
-    ImageServiceImpl service;
-    grpc::ServerBuilder builder;
 
+    ImageServiceImpl imageService;
+    StatusServiceImpl statusService;
+
+
+    grpc::ServerBuilder builder;
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-    builder.RegisterService(&service);
+    builder.RegisterService(&imageService);
+    builder.RegisterService(&statusService);
     builder.SetMaxReceiveMessageSize(-1);
     builder.SetMaxSendMessageSize(-1);
+
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     std::cout << "[Server]: Started listening on " << server_address << std::endl;
     server->Wait();

@@ -3,6 +3,9 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <string>
+#include <memory>
+#include <mutex>
+#include <atomic>
 
 namespace Server {
     class ImageProcessing {
@@ -26,6 +29,7 @@ namespace Server {
             double calculateHistogramSimilarity(cv::Mat hist1, cv::Mat hist2);
             void ReadImagesFolder();
             int statusPercentage_;
+            std::mutex mutex_;
     };
 }
 

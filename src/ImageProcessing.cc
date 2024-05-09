@@ -30,7 +30,6 @@ namespace Server {
         imagePaths_ = imagePaths;
     }
 
-
     void ImageProcessing::DisplaySimilarityScores() {
         for (const auto &similarityScore : similarityScores_) {
             std::cout << similarityScore.first << ": " << "Similarity score: "<< similarityScore.second << std::endl;
@@ -38,63 +37,65 @@ namespace Server {
     }
 
     void ImageProcessing::QueryImage() {
-    queryImage_ = cv::imread(queryImagePathName_, cv::IMREAD_GRAYSCALE);
+        queryImage_ = cv::imread(queryImagePathName_, cv::IMREAD_GRAYSCALE);
 
-    if (queryImage_.empty()) {
-        std::cout << "Could not read the image: " << queryImagePathName_ << std::endl;
-        return;
-    }
-
-    ReadImagesFolder();
-
-    queryHist_ = calculateHistogram(queryImage_);
-
-    size_t totalImages = imagePaths_.size();
-    size_t processedImages = 0;
-    statusPercentage_ = 0;
-
-    for (const std::string& imagePath : imagePaths_) {
-        cv::Mat image = cv::imread(imagePath, cv::IMREAD_GRAYSCALE);
-
-        if (image.empty()) {
-            std::cout << "[Server]: Could not read the image: " << imagePath << std::endl;
-            continue;
+        if (queryImage_.empty()) {
+            std::cout << "Could not read the image: " << queryImagePathName_ << std::endl;
+            return;
         }
 
-        cv::Mat imageHist = calculateHistogram(image);
-        double similarityScore = calculateHistogramSimilarity(queryHist_, imageHist);
-        similarityScores_.emplace_back(imagePath, similarityScore);
+        ReadImagesFolder();
 
-        // Update and display the progress bar
-        processedImages++;
-        double progress = (double)processedImages / totalImages;
-        int barWidth = 70;
+        queryHist_ = calculateHistogram(queryImage_);
 
-        // Set the text color to green
-        std::cout << "\033[32m"; 
-        std::cout << "Processing image: " << processedImages << "/" << totalImages << " [";
-        int pos = barWidth * progress;
-        for (int i = 0; i < barWidth; ++i) {
-            if (i < pos) std::cout << "=";
-            else if (i == pos) std::cout << ">";
-            else std::cout << " ";
+        size_t totalImages = imagePaths_.size();
+        size_t processedImages = 0;
+        statusPercentage_ = 0;
+
+        for (const std::string& imagePath : imagePaths_) {
+            cv::Mat image = cv::imread(imagePath, cv::IMREAD_GRAYSCALE);
+
+            if (image.empty()) {
+                std::cout << "[Server]: Could not read the image: " << imagePath << std::endl;
+                continue;
+            }
+
+            cv::Mat imageHist = calculateHistogram(image);
+            double similarityScore = calculateHistogramSimilarity(queryHist_, imageHist);
+            similarityScores_.emplace_back(imagePath, similarityScore);
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                // Update and display the progress bar
+                processedImages++;
+                double progress = (double)processedImages / totalImages;
+                int barWidth = 70;
+
+                // Set the text color to green
+                std::cout << "\033[32m"; 
+                std::cout << "Processing image: " << processedImages << "/" << totalImages << " [";
+                int pos = barWidth * progress;
+                for (int i = 0; i < barWidth; ++i) {
+                    if (i < pos) std::cout << "=";
+                    else if (i == pos) std::cout << ">";
+                    else std::cout << " ";
+                }
+                statusPercentage_ = int(progress * 100.0);
+                std::cout << "] " << statusPercentage_ << " %\r";
+                std::cout.flush();
+
+                // Reset the text color to default
+                std::cout << "\033[0m";
+            } 
         }
-        statusPercentage_ = int(progress * 100.0);
-        std::cout << "] " << statusPercentage_ << " %\r";
-        std::cout.flush();
 
-        // Reset the text color to default
-        std::cout << "\033[0m"; 
+        std::cout << std::endl;
+
+        sort(similarityScores_.begin(), similarityScores_.end(), [](const std::pair<std::string, double> &a, const std::pair<std::string, double> &b) {
+            return a.second < b.second;
+        });
+
+        DisplaySimilarityScores();
     }
-
-    std::cout << std::endl;
-
-    sort(similarityScores_.begin(), similarityScores_.end(), [](const std::pair<std::string, double> &a, const std::pair<std::string, double> &b) {
-        return a.second < b.second;
-    });
-
-    DisplaySimilarityScores();
-}
 
     void ImageProcessing::ReadImagesFolder() {
 
