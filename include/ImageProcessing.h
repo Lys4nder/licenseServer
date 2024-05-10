@@ -10,7 +10,7 @@
 namespace Server {
     class ImageProcessing {
         public:
-            ImageProcessing();
+            ImageProcessing(std::shared_ptr<int> statusPercentagePtr);
             void setFolderPath(std::string folderPath);
             void setQueryImagePath(std::string queryImagePath);
             void setImagePaths(std::vector<std::string> imagePaths);
@@ -30,6 +30,7 @@ namespace Server {
             void ReadImagesFolder();
             int statusPercentage_;
             std::mutex mutex_;
+            std::shared_ptr<int> statusPercentagePtr_;
     };
 }
 

@@ -3,7 +3,7 @@
 
 namespace Server {
 
-    ImageProcessing::ImageProcessing() {}
+    ImageProcessing::ImageProcessing(std::shared_ptr<int> statusPercentagePtr) : statusPercentagePtr_(statusPercentagePtr) {}
 
     cv::Mat ImageProcessing::calculateHistogram(cv::Mat image) {
         cv::Mat hist;
@@ -63,8 +63,6 @@ namespace Server {
             cv::Mat imageHist = calculateHistogram(image);
             double similarityScore = calculateHistogramSimilarity(queryHist_, imageHist);
             similarityScores_.emplace_back(imagePath, similarityScore);
-            {
-                std::lock_guard<std::mutex> lock(mutex_);
                 // Update and display the progress bar
                 processedImages++;
                 double progress = (double)processedImages / totalImages;
@@ -80,12 +78,15 @@ namespace Server {
                     else std::cout << " ";
                 }
                 statusPercentage_ = int(progress * 100.0);
+                {
+                    std::lock_guard<std::mutex> lock(mutex_);
+                    *statusPercentagePtr_ = statusPercentage_;
+                }
                 std::cout << "] " << statusPercentage_ << " %\r";
                 std::cout.flush();
 
                 // Reset the text color to default
                 std::cout << "\033[0m";
-            } 
         }
 
         std::cout << std::endl;

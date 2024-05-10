@@ -16,8 +16,8 @@
 #include <thread>
 
 class ImageServiceImpl final : public ImageService::Service {
-private:
 public:
+    ImageServiceImpl(std::shared_ptr<int> statusPercentage) : statusPercentage_(statusPercentage) {}
     grpc::Status ProcessImage(grpc::ServerContext* context, const ImageRequest* request, ImageResponse* response) override {
         QByteArray imageData = QByteArray::fromBase64(request->image_data().c_str());
         // Check if image data is valid
@@ -45,7 +45,7 @@ public:
         catch (const std::exception& e) {
             std::cout << e.what();
         }
-        Server::ImageProcessing imageProcessing;
+        Server::ImageProcessing imageProcessing(statusPercentage_);
         imageProcessing.setFolderPath(cfImporter.GetImageFolderPath());
         imageProcessing.setQueryImagePath("output_image.png");
         imageProcessing.QueryImage();
@@ -73,26 +73,29 @@ public:
         }
         return grpc::Status::OK;
     }
+    private:
+        std::shared_ptr<int> statusPercentage_;
 };
 
 class StatusServiceImpl final : public StatusService::Service {
 public:
+    StatusServiceImpl(std::shared_ptr<int> statusPercentage) : statusPercentage_(statusPercentage) {}
     grpc::Status GetStatus(grpc::ServerContext* context, const PercentageRequest* request, grpc::ServerWriter<PercentageResponse>* writer) override {
         std::cout << "[Server]: Status request function called" << std::endl;
 
-        // Assuming some logic here to determine when to send responses
-        int i = 0;
-        while (i <= 100){
-            PercentageResponse response;
-            response.set_percentage(i); // Use the shared statusPercentage_
-            writer->Write(response); // Send the response to the client
-            i++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Sleep for 100ms
+        while (*statusPercentage_ <= 100){
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                PercentageResponse response;
+                response.set_percentage(*statusPercentage_); // Use the shared statusPercentage_
+                writer->Write(response); // Send the response to the client
+            }
         }
-        i = 0; // Reset the statusPercentage_ to 0
         return grpc::Status::OK;
     }
-
+private:
+    std::shared_ptr<int> statusPercentage_;
+    std::mutex mutex_;
 };
 
 void RunServer() {
@@ -105,8 +108,9 @@ void RunServer() {
     }
     std::string server_address(cfImporter.GetAddr() + ':' + cfImporter.GetPort());
 
-    ImageServiceImpl imageService;
-    StatusServiceImpl statusService;
+    std::shared_ptr<int> statusPercentage = std::make_shared<int>(0);
+    ImageServiceImpl imageService(statusPercentage);
+    StatusServiceImpl statusService(statusPercentage);
 
 
     grpc::ServerBuilder builder;
