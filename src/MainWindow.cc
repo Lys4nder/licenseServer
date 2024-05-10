@@ -3,6 +3,8 @@
 #include <QFileDialog>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QtConcurrent/QtConcurrent>
+
 
 MainWindow::MainWindow() {
     setWindowTitle("CBIR");
@@ -34,6 +36,17 @@ MainWindow::MainWindow() {
     SetStatusLabel(contentLayout, "No status yet");
 
     mainLayout->addLayout(contentLayout);
+
+    SetStatusBar(mainLayout);
+
+    connect(&connection_, &Client::ServerConnection::StatusUpdate, this, &MainWindow::UpdateProgressBar);
+}
+
+void MainWindow::UpdateProgressBar(int percentage) {
+    // Update progress bar and label with the received percentage
+    progressBar_->setValue(percentage);
+    progressBarLabel_->setText(QString::number(percentage) + "%");
+    QCoreApplication::processEvents();
 }
 
 void MainWindow::SetImportButton(QHBoxLayout* layout) {
@@ -147,7 +160,7 @@ void MainWindow::ImportImage() {
             // Set the text and imageLabel
             imagePathLabel_->setText(filePath);
             imageLabel_->setPixmap(QPixmap::fromImage(image_));
-            statusLabel_->setText("Image imported");
+            statusBar_->showMessage("Image imported");
         } else {
             statusLabel_->setText("Failed to import image");
         }
@@ -160,27 +173,55 @@ void MainWindow::ImportImage() {
 
 void MainWindow::QueryImage() {
     if (image_.isNull()) {
-        statusLabel_->setText("No image imported");
+        statusBar_->showMessage("No image imported");
     }
     else {
-        statusLabel_->setText("Processing image...");
-        connection_.MakeRequest(toBeSentImage_, 1);
-        std::vector<QImage> receivedImages = connection_.GetReceivedImages();
+        statusBar_->showMessage("Processing image...");
 
-        //scale images to fit label
-        QSize scaledSize = imageLabel_->size();
-        for (auto& img : receivedImages) {
-            img = img.scaled(scaledSize, Qt::KeepAspectRatio);
-            imageLabel_->setPixmap(QPixmap::fromImage(img));
-        }
+        // Run MakeRequest function on a separate thread
+        QFuture<void> future = QtConcurrent::run([this]() {
+            connection_.MakeRequest(toBeSentImage_, 1);
+        });
 
-        statusLabel_->setText("Result image...");
+        // Connect a watcher to the future to handle result when done
+        QFutureWatcher<void>* watcher = new QFutureWatcher<void>();
+        connect(watcher, &QFutureWatcher<void>::finished, this, [this, watcher]() {
+            watcher->deleteLater();
+            std::vector<QImage> receivedImages = connection_.GetReceivedImages();
 
-        // Create a secondary window to display the results
-        Client::SecondaryWindow* secondaryWindow = new Client::SecondaryWindow();
-        secondaryWindow->SetImages(receivedImages);
-        secondaryWindow->DisplayImages();
-        secondaryWindow->show();
+            //scale images to fit label
+            QSize scaledSize = imageLabel_->size();
+            for (auto& img : receivedImages) {
+                img = img.scaled(scaledSize, Qt::KeepAspectRatio);
+                imageLabel_->setPixmap(QPixmap::fromImage(img));
+            }
 
+            statusBar_->showMessage("Displaying result");
+
+            // Create a secondary window to display the results
+            Client::SecondaryWindow* secondaryWindow = new Client::SecondaryWindow();
+            secondaryWindow->SetImages(receivedImages);
+            secondaryWindow->DisplayImages();
+            secondaryWindow->show();
+        });
+        watcher->setFuture(future);
     }
+}
+
+void MainWindow::SetStatusBar(QVBoxLayout* layout) {
+    statusBar_ = new QStatusBar(this);
+    statusBar_->setFixedHeight(20);
+    statusBar_->showMessage("Ready");
+
+    progressBar_ = new QProgressBar(this);
+    progressBar_->setRange(0, 100);
+    progressBar_->setValue(0);
+    progressBar_->setFormat("%p%");
+    
+    progressBarLabel_ = new QLabel(this);
+    progressBarLabel_->setText("0%");
+    statusBar_->addPermanentWidget(progressBar_);
+    statusBar_->addPermanentWidget(progressBarLabel_);
+
+    layout->addWidget(statusBar_);
 }
