@@ -52,6 +52,12 @@ namespace Server {
         size_t processedImages = 0;
         statusPercentage_ = 0;
 
+        // Set the statusPercentage_ to 0
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            *statusPercentagePtr_ = 0;
+        }
+
         for (const std::string& imagePath : imagePaths_) {
             cv::Mat image = cv::imread(imagePath, cv::IMREAD_GRAYSCALE);
 

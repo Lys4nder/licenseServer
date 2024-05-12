@@ -83,14 +83,22 @@ public:
     grpc::Status GetStatus(grpc::ServerContext* context, const PercentageRequest* request, grpc::ServerWriter<PercentageResponse>* writer) override {
         std::cout << "[Server]: Status request function called" << std::endl;
 
+        
         while (*statusPercentage_ <= 100){
             {
                 std::lock_guard<std::mutex> lock(mutex_);
                 PercentageResponse response;
                 response.set_percentage(*statusPercentage_); // Use the shared statusPercentage_
                 writer->Write(response); // Send the response to the client
+
+                if (*statusPercentage_ == 100) {
+                    break;
+                }
             }
         }
+        // failsafe check
+        
+        std::cout << "[Server]: Status request function finished" << std::endl;
         return grpc::Status::OK;
     }
 private:
