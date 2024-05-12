@@ -85,9 +85,14 @@ namespace Client {
             // Iterate over the stream of responses
             PercentageResponse statusResponse;
             while (reader->Read(&statusResponse)) {
-                // Handle each response
-                std::cout << "[Client]: Received percentage: " << statusResponse.percentage() << std::endl;
+            // Handle each response
+                std::cout << "[Client]: Received percentage: " << statusResponse.percentage() << "\r";
+                std::cout.flush();
                 emit StatusUpdate(statusResponse.percentage());
+                if (statusResponse.percentage() == 100) {
+                    std::cout << "[Client]: Received 100% completion" << std::endl;
+                    break; // Exit the loop to stop processing responses
+                }
             }
             // Check if the stream has finished
             grpc::Status status = reader->Finish();
