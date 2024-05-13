@@ -186,6 +186,7 @@ void MainWindow::QueryImage() {
         // Connect a watcher to the future to handle result when done
         QFutureWatcher<void>* watcher = new QFutureWatcher<void>();
         connect(watcher, &QFutureWatcher<void>::finished, this, [this, watcher]() {
+            std::cout << "[Client]: Watcher finished" << std::endl;
             watcher->deleteLater();
             std::vector<QImage> receivedImages = connection_.GetReceivedImages();
 

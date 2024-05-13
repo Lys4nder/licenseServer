@@ -77,6 +77,7 @@ namespace Client {
                 // Handle error for the image service
                 std::cerr << "[Client]: Error: " << imageStatus.error_message() << std::endl;
             }
+            std::cout << "[Client]: Exiting image request thread" << std::endl;
         });
 
         std::thread statusThread([this, &statusStub, &percentageRequest, &statusContext]() {
@@ -90,8 +91,7 @@ namespace Client {
                 std::cout.flush();
                 emit StatusUpdate(statusResponse.percentage());
                 if (statusResponse.percentage() == 100) {
-                    std::cout << "[Client]: Received 100% completion" << std::endl;
-                    break; // Exit the loop to stop processing responses
+                    std::cout << "\n[Client]: Received 100% completion" << std::endl;
                 }
             }
             // Check if the stream has finished
@@ -101,6 +101,7 @@ namespace Client {
                 std::cerr << "[Client]: Error: " << status.error_message() << std::endl;
             }
             // Reset the request flag
+            std::cout << "[Client]: Exiting status request thread" << std::endl;
             percentageRequest.set_request(0);
         });
 
