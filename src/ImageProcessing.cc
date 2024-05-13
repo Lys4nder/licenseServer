@@ -101,7 +101,7 @@ namespace Server {
             return a.second < b.second;
         });
 
-        DisplaySimilarityScores();
+        //DisplaySimilarityScores();
     }
 
     void ImageProcessing::ReadImagesFolder() {
