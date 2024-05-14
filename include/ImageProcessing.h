@@ -1,11 +1,14 @@
 #ifndef SERVER_IMAGEPROCESSING_H
 #define SERVER_IMAGEPROCESSING_H
+
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <string>
 #include <memory>
 #include <mutex>
 #include <atomic>
+#include <opencv2/features2d.hpp>
+#include <opencv2/xfeatures2d.hpp>
 
 namespace Server {
     class ImageProcessing {
@@ -31,8 +34,9 @@ namespace Server {
             int statusPercentage_;
             std::mutex mutex_;
             std::shared_ptr<int> statusPercentagePtr_;
+            cv::Mat calculateSURFDescriptors(cv::Mat image); // Changed function name
+            double calculateCombinedSimilarity(cv::Mat queryHist, cv::Mat queryDescriptors, cv::Mat imageHist, cv::Mat imageDescriptors);
     };
 }
-
 
 #endif //SERVER_IMAGEPROCESSING_H
