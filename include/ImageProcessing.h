@@ -36,6 +36,7 @@ namespace Server {
             std::shared_ptr<int> statusPercentagePtr_;
             cv::Mat calculateSURFDescriptors(cv::Mat image); // Changed function name
             double calculateCombinedSimilarity(cv::Mat queryHist, cv::Mat queryDescriptors, cv::Mat imageHist, cv::Mat imageDescriptors);
+            void plotHistogram();
     };
 }
 

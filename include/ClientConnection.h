@@ -53,12 +53,17 @@ public:
         std::vector<std::pair<std::string, double>> similarityScores = imageProcessing.GetSimilarityScores();
         std::vector<QImage> qImages;
         qImages.reserve(similarityScores.size());
+        QImage histImage;
+        histImage.load("../build/RGB_Histogram.png");
+        qImages.push_back(std::move(histImage));
 
         for (const auto &similarityScore : similarityScores) {
             if (similarityScore.second < 0.15) {
                 QImage qImage;
                 qImage.load(QString::fromStdString(similarityScore.first));
                 qImages.push_back(std::move(qImage));
+            } else {
+                break;
             }
         }
 

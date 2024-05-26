@@ -1,5 +1,6 @@
 #include "../include/ImageProcessing.h"
 #include <iostream>
+#include <matplot/matplot.h>
 
 namespace Server {
 
@@ -12,6 +13,34 @@ namespace Server {
         const float* histRange = {range};
         cv::calcHist(&image, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange);
         return hist;
+    }
+
+    void ImageProcessing::plotHistogram() {
+        cv::Mat image = cv::imread("../build/output_image.png", cv::IMREAD_COLOR);
+        std::vector<cv::Mat> bgr_planes;
+        cv::split(image, bgr_planes);
+
+        std::vector<cv::Mat> hist(3);
+        int histSize = 256;
+        float range[] = {0, 256};
+        const float* histRange = {range};
+        for (int i = 0; i < 3; ++i) {
+            cv::calcHist(&bgr_planes[i], 1, 0, cv::Mat(), hist[i], 1, &histSize, &histRange);
+        }
+        using namespace matplot;
+        std::vector<double> histDataB(hist[0].begin<float>(), hist[0].end<float>());
+        std::vector<double> histDataG(hist[1].begin<float>(), hist[1].end<float>());
+        std::vector<double> histDataR(hist[2].begin<float>(), hist[2].end<float>());
+
+        hold(on);
+        plot(histDataB)->color("b");
+        plot(histDataG)->color("g");
+        plot(histDataR)->color("r");
+        hold(off);
+        title("RGB Image Histogram");
+        xlabel("Bins");
+        ylabel("Frequency");
+        save("RGB_Histogram.png", "png");
     }
 
     cv::Mat ImageProcessing::calculateSURFDescriptors(cv::Mat image) { // Changed function signature
@@ -84,6 +113,7 @@ namespace Server {
 
         cv::Mat queryHist = calculateHistogram(queryImage_);
         cv::Mat queryDescriptors = calculateSURFDescriptors(queryImage_);
+        plotHistogram();
 
         ReadImagesFolder();
 
