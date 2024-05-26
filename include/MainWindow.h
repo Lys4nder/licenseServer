@@ -32,6 +32,7 @@ protected:
     QPushButton* importButton_; // New QPushButton for image import
     QLabel *imagePathLabel_;
     QLabel *imageLabel_; // QLabel for displaying the image
+    QLabel *rgbLabel;
     QPushButton* queryButton_;
     QLabel* statusLabel_;
     QStatusBar* statusBar_;
@@ -48,7 +49,7 @@ protected:
     void SetQueryButton(QHBoxLayout* layout);
     void SetImageLabel(QHBoxLayout* layout);
     void SetTextLabel(QVBoxLayout* layout, QString text);
-    void SetStatusLabel(QHBoxLayout* layout, QString text);
+    void SetStatusLabel(QHBoxLayout* layout);
     void SetStatusBar(QVBoxLayout* layout);
 
 };
