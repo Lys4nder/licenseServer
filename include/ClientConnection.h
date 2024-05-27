@@ -14,6 +14,8 @@
 #include <QBuffer>
 #include "../include/ConfigImporter.h"
 #include <thread>
+#include <fstream>
+#include <sstream>
 
 class ImageServiceImpl final : public ImageService::Service {
 public:
@@ -120,6 +122,17 @@ private:
     std::mutex mutex_;
 };
 
+std::string ReadFile(const std::string& filepath) {
+    std::ifstream file(filepath);
+    if (!file) {
+        throw std::runtime_error("Unable to open file: " + filepath);
+    }
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+
 void RunServer() {
     Server::ConfigImporter cfImporter;
     try {
@@ -134,9 +147,18 @@ void RunServer() {
     ImageServiceImpl imageService(statusPercentage);
     StatusServiceImpl statusService(statusPercentage);
 
+    // Load server credentials
+    std::string server_key = ReadFile("../ssl_files/server_key.pem");
+    std::string server_chain = ReadFile("../ssl_files/server_chain.pem");
+    std::string ca_cert = ReadFile("../ssl_files/ca_cert.pem");
+
+    grpc::SslServerCredentialsOptions::PemKeyCertPair key_cert_pair = { server_key, server_chain };
+    grpc::SslServerCredentialsOptions ssl_opts;
+    ssl_opts.pem_key_cert_pairs.push_back(key_cert_pair);
+    ssl_opts.pem_root_certs = ca_cert;
 
     grpc::ServerBuilder builder;
-    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+    builder.AddListeningPort(server_address, grpc::SslServerCredentials(ssl_opts));
     builder.RegisterService(&imageService);
     builder.RegisterService(&statusService);
     builder.SetMaxReceiveMessageSize(-1);
@@ -146,5 +168,6 @@ void RunServer() {
     std::cout << "[Server]: Started listening on " << server_address << std::endl;
     server->Wait();
 }
+
 
 #endif //SERVER_CLIENTCONNECTION_H
