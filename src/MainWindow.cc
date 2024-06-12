@@ -8,7 +8,8 @@
 
 MainWindow::MainWindow() {
     setWindowTitle("CBIR");
-    setGeometry(100, 100, 700, 400);
+    setGeometry(100, 100, 900, 400);
+    setWindowFlags(windowFlags() | Qt::WindowMinMaxButtonsHint);
     setAcceptDrops(true);
 
     // Create the main layout for the window
@@ -33,7 +34,7 @@ MainWindow::MainWindow() {
 
     // Create and set the image label
     SetImageLabel(contentLayout);
-    SetStatusLabel(contentLayout, "No status yet");
+    SetStatusLabel(contentLayout);
 
     mainLayout->addLayout(contentLayout);
 
@@ -86,13 +87,14 @@ void MainWindow::SetTextLabel(QVBoxLayout* layout, QString text) {
     layout->addWidget(imagePathLabel_);
 }
 
-void MainWindow::SetStatusLabel(QHBoxLayout* layout, QString text) {
-    statusLabel_ = new QLabel(text);
-    statusLabel_->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
-    statusLabel_->setAlignment(Qt::AlignTop);
-
-    layout->addWidget(statusLabel_);
+void MainWindow::SetStatusLabel(QHBoxLayout* layout) {
+    // Create a QLabel for the image
+    rgbLabel = new QLabel(this);
+    rgbLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
+    // Add the image label to the main layout
+    layout->addWidget(rgbLabel);
 }
+
 
 QPalette MainWindow::SetPalette() {
      // Create Color Palette
@@ -186,14 +188,25 @@ void MainWindow::QueryImage() {
         // Connect a watcher to the future to handle result when done
         QFutureWatcher<void>* watcher = new QFutureWatcher<void>();
         connect(watcher, &QFutureWatcher<void>::finished, this, [this, watcher]() {
+            std::cout << "[Client]: Watcher finished" << std::endl;
             watcher->deleteLater();
             std::vector<QImage> receivedImages = connection_.GetReceivedImages();
 
             //scale images to fit label
             QSize scaledSize = imageLabel_->size();
+            int i = 0;
             for (auto& img : receivedImages) {
-                img = img.scaled(scaledSize, Qt::KeepAspectRatio);
-                imageLabel_->setPixmap(QPixmap::fromImage(img));
+                if (i == 0) {
+                    img = img.scaled(scaledSize, Qt::KeepAspectRatio);
+                    rgbLabel->setPixmap(QPixmap::fromImage(img));
+                    i++;
+                } else {
+                    img = img.scaled(scaledSize, Qt::KeepAspectRatio);
+                }
+            }
+
+            if (!receivedImages.empty()) {
+                receivedImages.erase(receivedImages.begin());
             }
 
             statusBar_->showMessage("Displaying result");

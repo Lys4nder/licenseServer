@@ -44,6 +44,7 @@ namespace Client {
         std::string ip_;
         std::string port_;
         std::vector<QImage> receivedImages_;
+        std::string ReadFile(const std::string& filepath);
     };
 }
 
