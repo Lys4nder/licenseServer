@@ -23,6 +23,8 @@ find_package(gRPC CONFIG REQUIRED)
 # Find OpenCV
 find_package(OpenCV REQUIRED)
 
+find_package(Matplot++ REQUIRED)
+
 
 # Check if Qt6 was found
 if (Qt6_FOUND)
@@ -137,6 +139,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
   GrpcProtoLib
   Qt6::Gui
   ${OpenCV_LIBS}
+  Matplot++::matplot
 )
 
 # Sets a library with project file for testing
@@ -150,6 +153,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}_lib
   GrpcProtoLib
   Qt6::Gui
   ${OpenCV_LIBS}
+  Matplot++::matplot
 )
 
 # Adds the test directory

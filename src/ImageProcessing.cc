@@ -1,9 +1,10 @@
 #include "../include/ImageProcessing.h"
 #include <iostream>
+#include <matplot/matplot.h>
 
 namespace Server {
 
-    ImageProcessing::ImageProcessing() {}
+    ImageProcessing::ImageProcessing(std::shared_ptr<int> statusPercentagePtr) : statusPercentagePtr_(statusPercentagePtr) {}
 
     cv::Mat ImageProcessing::calculateHistogram(cv::Mat image) {
         cv::Mat hist;
@@ -14,9 +15,75 @@ namespace Server {
         return hist;
     }
 
-    double ImageProcessing::calculateHistogramSimilarity(cv::Mat hist1, cv::Mat hist2) {
-        return cv::compareHist(hist1, hist2, cv::HISTCMP_BHATTACHARYYA);
+    void ImageProcessing::plotHistogram() {
+        cv::Mat image = cv::imread("../build/output_image.png", cv::IMREAD_COLOR);
+        std::vector<cv::Mat> bgr_planes;
+        cv::split(image, bgr_planes);
+
+        std::vector<cv::Mat> hist(3);
+        int histSize = 256;
+        float range[] = {0, 256};
+        const float* histRange = {range};
+        for (int i = 0; i < 3; ++i) {
+            cv::calcHist(&bgr_planes[i], 1, 0, cv::Mat(), hist[i], 1, &histSize, &histRange);
+        }
+        using namespace matplot;
+        std::vector<double> histDataB(hist[0].begin<float>(), hist[0].end<float>());
+        std::vector<double> histDataG(hist[1].begin<float>(), hist[1].end<float>());
+        std::vector<double> histDataR(hist[2].begin<float>(), hist[2].end<float>());
+
+        hold(on);
+        plot(histDataB)->color("b");
+        plot(histDataG)->color("g");
+        plot(histDataR)->color("r");
+        hold(off);
+        title("RGB Image Histogram");
+        xlabel("Bins");
+        ylabel("Frequency");
+        save("RGB_Histogram.png", "png");
     }
+
+    cv::Mat ImageProcessing::calculateSURFDescriptors(cv::Mat image) { // Changed function signature
+        cv::Ptr<cv::xfeatures2d::SURF> surf = cv::xfeatures2d::SURF::create(); // Changed algorithm
+        std::vector<cv::KeyPoint> keypoints;
+        cv::Mat descriptors;
+        surf->detectAndCompute(image, cv::noArray(), keypoints, descriptors); // Changed algorithm
+        return descriptors;
+    }
+
+    double ImageProcessing::calculateCombinedSimilarity(cv::Mat queryHist, cv::Mat queryDescriptors, cv::Mat imageHist, cv::Mat imageDescriptors) {
+        // Calculate similarity based on histogram
+        double histSimilarity = cv::compareHist(queryHist, imageHist, cv::HISTCMP_BHATTACHARYYA);
+
+        // Calculate similarity based on SURF descriptors
+        cv::Ptr<cv::DescriptorMatcher> matcher = cv::DescriptorMatcher::create("FlannBased");
+        std::vector<std::vector<cv::DMatch>> knnMatches;
+        matcher->knnMatch(queryDescriptors, imageDescriptors, knnMatches, 2);
+
+        // Filter good matches based on Lowe's ratio test
+        const float ratioThreshold = 0.7f;
+        std::vector<cv::DMatch> goodMatches;
+        for (const auto& match : knnMatches) {
+            if (match[0].distance < ratioThreshold * match[1].distance) {
+                goodMatches.push_back(match[0]);
+            }
+        }
+
+        double surfSimilarity = 1.0 - static_cast<double>(goodMatches.size()) / std::max(queryDescriptors.rows, imageDescriptors.rows);
+
+        // Thresholds
+        const double histThreshold = 0.2; 
+        const double surfThreshold = 0.8;
+
+        // Combine histogram and SURF similarities using adjusted thresholds
+        double combinedSimilarity = 0.0;
+        if (histSimilarity >= histThreshold && surfSimilarity >= surfThreshold) {
+            combinedSimilarity = 0.5 * histSimilarity + 0.5 * surfSimilarity;
+        }
+
+        return combinedSimilarity;
+    }
+
 
     void ImageProcessing::setQueryImagePath(std::string queryImagePath) {
         queryImagePathName_ = queryImagePath;
@@ -44,13 +111,21 @@ namespace Server {
             return;
         }
 
-        ReadImagesFolder();
+        cv::Mat queryHist = calculateHistogram(queryImage_);
+        cv::Mat queryDescriptors = calculateSURFDescriptors(queryImage_);
+        plotHistogram();
 
-        queryHist_ = calculateHistogram(queryImage_);
+        ReadImagesFolder();
 
         size_t totalImages = imagePaths_.size();
         size_t processedImages = 0;
         statusPercentage_ = 0;
+
+        // Set the statusPercentage_ to 0
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            *statusPercentagePtr_ = 0;
+        }
 
         for (const std::string& imagePath : imagePaths_) {
             cv::Mat image = cv::imread(imagePath, cv::IMREAD_GRAYSCALE);
@@ -61,31 +136,35 @@ namespace Server {
             }
 
             cv::Mat imageHist = calculateHistogram(image);
-            double similarityScore = calculateHistogramSimilarity(queryHist_, imageHist);
+            cv::Mat imageDescriptors = calculateSURFDescriptors(image);
+
+            double similarityScore = calculateCombinedSimilarity(queryHist, queryDescriptors, imageHist, imageDescriptors);
             similarityScores_.emplace_back(imagePath, similarityScore);
+            
+            // Update and display the progress bar
+            processedImages++;
+            double progress = (double)processedImages / totalImages;
+            int barWidth = 70;
+
+            // Set the text color to green
+            std::cout << "\033[32m"; 
+            std::cout << "Processing image: " << processedImages << "/" << totalImages << " [";
+            int pos = barWidth * progress;
+            for (int i = 0; i < barWidth; ++i) {
+                if (i < pos) std::cout << "=";
+                else if (i == pos) std::cout << ">";
+                else std::cout << " ";
+            }
+            statusPercentage_ = int(progress * 100.0);
             {
                 std::lock_guard<std::mutex> lock(mutex_);
-                // Update and display the progress bar
-                processedImages++;
-                double progress = (double)processedImages / totalImages;
-                int barWidth = 70;
+                *statusPercentagePtr_ = statusPercentage_;
+            }
+            std::cout << "] " << statusPercentage_ << " %\r";
+            std::cout.flush();
 
-                // Set the text color to green
-                std::cout << "\033[32m"; 
-                std::cout << "Processing image: " << processedImages << "/" << totalImages << " [";
-                int pos = barWidth * progress;
-                for (int i = 0; i < barWidth; ++i) {
-                    if (i < pos) std::cout << "=";
-                    else if (i == pos) std::cout << ">";
-                    else std::cout << " ";
-                }
-                statusPercentage_ = int(progress * 100.0);
-                std::cout << "] " << statusPercentage_ << " %\r";
-                std::cout.flush();
-
-                // Reset the text color to default
-                std::cout << "\033[0m";
-            } 
+            // Reset the text color to default
+            std::cout << "\033[0m";
         }
 
         std::cout << std::endl;
@@ -94,7 +173,7 @@ namespace Server {
             return a.second < b.second;
         });
 
-        DisplaySimilarityScores();
+        //DisplaySimilarityScores();
     }
 
     void ImageProcessing::ReadImagesFolder() {
