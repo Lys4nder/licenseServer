@@ -52,7 +52,7 @@ namespace Client {
 
         channel_ = grpc::CreateCustomChannel(ip_ + ":" + port_, grpc::SslCredentials(ssl_opts), ch_args);
 
-         std::unique_ptr<ImageService::Stub> imageStub(ImageService::NewStub(channel_));
+        std::unique_ptr<ImageService::Stub> imageStub(ImageService::NewStub(channel_));
         // Create a request message for the image service
         ImageRequest request;
         request.set_image_id(std::to_string(imageId));
@@ -100,7 +100,8 @@ namespace Client {
 
         std::thread statusThread([this, &statusStub, &percentageRequest, &statusContext]() {
             // Make the RPC call to get the status
-            std::unique_ptr<grpc::ClientReader<PercentageResponse>> reader(statusStub->GetStatus(&statusContext, percentageRequest));
+            std::unique_ptr<grpc::ClientReader<PercentageResponse>> reader
+            (statusStub->GetStatus(&statusContext, percentageRequest));
             // Iterate over the stream of responses
             PercentageResponse statusResponse;
             while (reader->Read(&statusResponse)) {
