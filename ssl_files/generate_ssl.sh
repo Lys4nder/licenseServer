@@ -52,7 +52,8 @@ IP.2    = 0.0.0.0
 EOL
 
 # Generate CA key and certificate
-openssl req -x509 -new -nodes -keyout ${CA_KEY} -out ${CA_CERT} -days ${DAYS_VALID} -subj "/C=US/ST=California/L=San Francisco/O=My Company/CN=my.ca.com"
+openssl req -x509 -new -nodes -keyout ${CA_KEY} -out ${CA_CERT} -days ${DAYS_VALID} 
+-subj "/C=US/ST=California/L=San Francisco/O=My Company/CN=my.ca.com"
 
 # Generate server key
 openssl genpkey -algorithm RSA -out ${SERVER_KEY} -pkeyopt rsa_keygen_bits:4096
@@ -61,7 +62,8 @@ openssl genpkey -algorithm RSA -out ${SERVER_KEY} -pkeyopt rsa_keygen_bits:4096
 openssl req -new -key ${SERVER_KEY} -out ${SERVER_CSR} -config ${CONFIG_FILE}
 
 # Sign server certificate with CA
-openssl x509 -req -in ${SERVER_CSR} -CA ${CA_CERT} -CAkey ${CA_KEY} -CAcreateserial -out ${SERVER_CERT} -days ${DAYS_VALID} -extfile ${CONFIG_FILE} -extensions v3_ca
+openssl x509 -req -in ${SERVER_CSR} -CA ${CA_CERT} -CAkey ${CA_KEY} -CAcreateserial 
+-out ${SERVER_CERT} -days ${DAYS_VALID} -extfile ${CONFIG_FILE} -extensions v3_ca
 
 # Create server certificate chain
 cat ${SERVER_CERT} ${CA_CERT} > ${SERVER_CHAIN}
@@ -70,10 +72,12 @@ cat ${SERVER_CERT} ${CA_CERT} > ${SERVER_CHAIN}
 openssl genpkey -algorithm RSA -out ${CLIENT_KEY} -pkeyopt rsa_keygen_bits:4096
 
 # Generate client CSR
-openssl req -new -key ${CLIENT_KEY} -out ${CLIENT_CSR} -subj "/C=US/ST=California/L=San Francisco/O=My Company/CN=my.client.com"
+openssl req -new -key ${CLIENT_KEY} -out ${CLIENT_CSR} -subj 
+"/C=US/ST=California/L=San Francisco/O=My Company/CN=my.client.com"
 
 # Sign client certificate with CA
-openssl x509 -req -in ${CLIENT_CSR} -CA ${CA_CERT} -CAkey ${CA_KEY} -CAcreateserial -out ${CLIENT_CERT} -days ${DAYS_VALID}
+openssl x509 -req -in ${CLIENT_CSR} -CA ${CA_CERT} -CAkey ${CA_KEY} -CAcreateserial 
+-out ${CLIENT_CERT} -days ${DAYS_VALID}
 
 echo "SSL files generated successfully:"
 echo "CA Certificate: ${CA_CERT}"

@@ -20,7 +20,8 @@
 class ImageServiceImpl final : public ImageService::Service {
 public:
     ImageServiceImpl(std::shared_ptr<int> statusPercentage) : statusPercentage_(statusPercentage) {}
-    grpc::Status ProcessImage(grpc::ServerContext* context, const ImageRequest* request, ImageResponse* response) override {
+    grpc::Status ProcessImage(grpc::ServerContext* context, 
+    const ImageRequest* request, ImageResponse* response) override {
         QByteArray imageData = QByteArray::fromBase64(request->image_data().c_str());
         // Check if image data is valid
         if (imageData.isNull()) {
