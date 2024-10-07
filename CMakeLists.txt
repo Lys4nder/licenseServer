@@ -82,7 +82,8 @@ set(PROTO_HEADERS "${CMAKE_BINARY_DIR}/generated/proto.pb.h")
 set(GRPC_SOURCES "${CMAKE_BINARY_DIR}/generated/proto.grpc.pb.cc")
 set(GRPC_HEADERS "${CMAKE_BINARY_DIR}/generated/proto.grpc.pb.h")
 
-set_property(SOURCE ${GRPC_SOURCES} ${PROTO_SOURCES} ${GRPC_HEADERS} ${PROTO_HEADERS} PROPERTY SKIP_AUTOMOC ON)
+set_property(SOURCE ${GRPC_SOURCES} ${PROTO_SOURCES} 
+${GRPC_HEADERS} ${PROTO_HEADERS} PROPERTY SKIP_AUTOMOC ON)
 
 # Generate *.pb.* and *.qrpc.* files from .proto file
 add_custom_command (

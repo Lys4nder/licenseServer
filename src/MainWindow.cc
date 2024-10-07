@@ -8,7 +8,7 @@
 
 MainWindow::MainWindow() {
     setWindowTitle("CBIR");
-    setGeometry(100, 100, 900, 400);
+    setGeometry(100, 100, 1366, 768);
     setWindowFlags(windowFlags() | Qt::WindowMinMaxButtonsHint);
     setAcceptDrops(true);
 
