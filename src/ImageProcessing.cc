@@ -15,6 +15,14 @@ namespace Server {
         return hist;
     }
 
+    cv::Mat ImageProcessing::calculateSURFDescriptors(cv::Mat image) { 
+        cv::Ptr<cv::xfeatures2d::SURF> surf = cv::xfeatures2d::SURF::create();
+        std::vector<cv::KeyPoint> keypoints;
+        cv::Mat descriptors;
+        surf->detectAndCompute(image, cv::noArray(), keypoints, descriptors);
+        return descriptors;
+    }
+
     void ImageProcessing::plotHistogram() {
         cv::Mat image = cv::imread("../build/output_image.png", cv::IMREAD_COLOR);
         std::vector<cv::Mat> bgr_planes;
@@ -43,15 +51,9 @@ namespace Server {
         save("RGB_Histogram.png", "png");
     }
 
-    cv::Mat ImageProcessing::calculateSURFDescriptors(cv::Mat image) { // Changed function signature
-        cv::Ptr<cv::xfeatures2d::SURF> surf = cv::xfeatures2d::SURF::create(); // Changed algorithm
-        std::vector<cv::KeyPoint> keypoints;
-        cv::Mat descriptors;
-        surf->detectAndCompute(image, cv::noArray(), keypoints, descriptors); // Changed algorithm
-        return descriptors;
-    }
 
-    double ImageProcessing::calculateCombinedSimilarity(cv::Mat queryHist, cv::Mat queryDescriptors, cv::Mat imageHist, cv::Mat imageDescriptors) {
+    double ImageProcessing::calculateCombinedSimilarity(cv::Mat queryHist, 
+        cv::Mat queryDescriptors, cv::Mat imageHist, cv::Mat imageDescriptors) {
         // Calculate similarity based on histogram
         double histSimilarity = cv::compareHist(queryHist, imageHist, cv::HISTCMP_BHATTACHARYYA);
 
@@ -69,7 +71,8 @@ namespace Server {
             }
         }
 
-        double surfSimilarity = 1.0 - static_cast<double>(goodMatches.size()) / std::max(queryDescriptors.rows, imageDescriptors.rows);
+        double surfSimilarity = 1.0 - static_cast<double>(goodMatches.size()) / 
+            std::max(queryDescriptors.rows, imageDescriptors.rows);
 
         // Thresholds
         const double histThreshold = 0.2; 

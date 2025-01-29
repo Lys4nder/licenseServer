@@ -50,6 +50,13 @@ else()
   message(FATAL_ERROR "Protobuf was not found")
 endif()
 
+# Check if Matplot++ was found
+if (Matplot++_FOUND)
+  message(STATUS "Matplot++ ${Matplot++_VERSION} was found")
+else()
+  message(FATAL_ERROR "Matplot++ was not found")
+endif()
+
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
 set(_REFLECTION gRPC::grpc++_reflection)
 if(CMAKE_CROSSCOMPILING)
@@ -157,4 +164,4 @@ target_link_libraries(${CMAKE_PROJECT_NAME}_lib
 )
 
 # Adds the test directory
-# add_subdirectory(test)
+add_subdirectory(test)
