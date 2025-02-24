@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+// Define a message for sending images
+message ImageRequest {
+  // Unique identifier for the image
+  string image_id = 1;
+
+  // The actual image data as bytes
+  bytes image_data = 2;
+}
+
+// Define a message for receiving multiple images
+message ImageResponse {
+  // Unique identifier for the set of images
+  string set_id = 1;
+
+  // List of images as bytes
+  repeated bytes image_data = 2;
+}
+
+// Define a service for image processing
+service ImageService {
+  // RPC method for sending an image and receiving multiple images
+  rpc ProcessImage (ImageRequest) returns (ImageResponse);
+}
+<<<<<<< HEAD
+=======
+
+>>>>>>> source/main
+service StatusService {
+  rpc GetStatus (PercentageRequest) returns (stream PercentageResponse);
+}
+
+message PercentageResponse {
+  int32 percentage = 1;
+}
+
+message PercentageRequest {
+  bool request = 1;
+<<<<<<< HEAD
+}
+=======
+}
+>>>>>>> source/main
