@@ -29,9 +29,10 @@ jobs:
     - name: Set up dependencies on macOS
       if: matrix.os == 'macos-latest'
       run: |
+        command xcode-select–install
         brew update
         brew install --cask clay
-        brew install qt@6 protobuf grpc opencv matplotplusplus cmake gcc clang
+        brew install qt@6 protobuf grpc opencv matplotplusplus cmake
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
