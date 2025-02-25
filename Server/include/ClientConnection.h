@@ -2,8 +2,8 @@
 #define SERVER_CLIENTCONNECTION_H
 
 #include <grpc++/grpc++.h>
-#include "../build/generated/proto.pb.h"
-#include "../build/generated/proto.grpc.pb.h"
+#include "../../build/generated/ServerProto.pb.h"
+#include "../../build/generated/ServerProto.grpc.pb.h"
 #include <string>
 #include <QByteArray>
 #include <QImage>

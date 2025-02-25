@@ -23,10 +23,7 @@ service ImageService {
   // RPC method for sending an image and receiving multiple images
   rpc ProcessImage (ImageRequest) returns (ImageResponse);
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> source/main
 service StatusService {
   rpc GetStatus (PercentageRequest) returns (stream PercentageResponse);
 }
@@ -37,8 +34,4 @@ message PercentageResponse {
 
 message PercentageRequest {
   bool request = 1;
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> source/main

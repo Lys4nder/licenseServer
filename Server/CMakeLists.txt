@@ -70,15 +70,15 @@ else()
 endif()
 
 # Gets the protos file path
-get_filename_component(PROTO_FILE "./proto/proto.proto" ABSOLUTE)
+get_filename_component(PROTO_FILE "./proto/ServerProto.proto" ABSOLUTE)
 get_filename_component(PROTO_FILE_PATH "${PROTO_FILE}" PATH)
 
 # Sets the location for generated files
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated/)
-set(PROTO_SOURCES "${CMAKE_BINARY_DIR}/generated/proto.pb.cc")
-set(PROTO_HEADERS "${CMAKE_BINARY_DIR}/generated/proto.pb.h")
-set(GRPC_SOURCES "${CMAKE_BINARY_DIR}/generated/proto.grpc.pb.cc")
-set(GRPC_HEADERS "${CMAKE_BINARY_DIR}/generated/proto.grpc.pb.h")
+set(PROTO_SOURCES "${CMAKE_BINARY_DIR}/generated/ServerProto.pb.cc")
+set(PROTO_HEADERS "${CMAKE_BINARY_DIR}/generated/ServerProto.pb.h")
+set(GRPC_SOURCES "${CMAKE_BINARY_DIR}/generated/ServerProto.grpc.pb.cc")
+set(GRPC_HEADERS "${CMAKE_BINARY_DIR}/generated/ServerProto.grpc.pb.h")
 
 set_property(SOURCE ${GRPC_SOURCES} ${PROTO_SOURCES} ${GRPC_HEADERS} ${PROTO_HEADERS} PROPERTY SKIP_AUTOMOC ON)
 

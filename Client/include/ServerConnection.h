@@ -2,8 +2,8 @@
 #define QT_GUI_SERVERCONNECTION_H
 
 #include <grpc++/grpc++.h>
-#include "../build/generated/proto.pb.h"
-#include "../build/generated/proto.grpc.pb.h"
+#include "../../build/generated/ClientProto.pb.h"
+#include "../../build/generated/ClientProto.grpc.pb.h"
 #include <thread>
 #include <mutex>
 #include <string>
