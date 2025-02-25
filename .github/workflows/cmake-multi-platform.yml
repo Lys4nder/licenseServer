@@ -29,7 +29,6 @@ jobs:
     - name: Set up dependencies on macOS
       if: matrix.os == 'macos-latest'
       run: |
-        command xcode-select–install
         brew update
         brew install --cask clay
         brew install qt@6 protobuf grpc opencv matplotplusplus cmake
