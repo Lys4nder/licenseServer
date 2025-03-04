@@ -5,7 +5,7 @@
 #include <iostream>
 
 void Server::ConfigImporter::ReadConfig() {
-    std::ifstream fileIn("../config.cfg");
+    std::ifstream fileIn("../../Server/config.cfg");
 
     if (fileIn) {
         // Check if file is empty

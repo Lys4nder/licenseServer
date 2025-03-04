@@ -5,7 +5,7 @@
 #include <iostream>
 
 void Client::ConfigImporter::ReadConfig() {
-    std::ifstream fileIn("../config.cfg");
+    std::ifstream fileIn("../../Client/config.cfg");
 
     if (fileIn) {
         // Check if file is empty

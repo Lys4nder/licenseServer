@@ -149,9 +149,9 @@ void RunServer() {
     StatusServiceImpl statusService(statusPercentage);
 
     // Load server credentials
-    std::string server_key = ReadFile("../ssl_files/server_key.pem");
-    std::string server_chain = ReadFile("../ssl_files/server_chain.pem");
-    std::string ca_cert = ReadFile("../ssl_files/ca_cert.pem");
+    std::string server_key = ReadFile("../../Server/ssl_files/server_key.pem");
+    std::string server_chain = ReadFile("../../Server/ssl_files/server_chain.pem");
+    std::string ca_cert = ReadFile("../../Server/ssl_files/ca_cert.pem");
 
     grpc::SslServerCredentialsOptions::PemKeyCertPair key_cert_pair = { server_key, server_chain };
     grpc::SslServerCredentialsOptions ssl_opts;
